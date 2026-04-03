@@ -1,0 +1,933 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: VentureLog API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: journal
+    description: Journal entries
+  - name: metrics
+    description: Business metrics
+  - name: decisions
+    description: Decision log
+  - name: dashboard
+    description: Dashboard summaries
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ── JOURNAL ─────────────────────────────────────────────────────────────────
+
+  /journal:
+    get:
+      operationId: listJournalEntries
+      tags: [journal]
+      summary: List journal entries
+      parameters:
+        - name: tag
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Journal entries list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JournalEntry"
+    post:
+      operationId: createJournalEntry
+      tags: [journal]
+      summary: Create a journal entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateJournalEntryBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntry"
+
+  /journal/{id}:
+    get:
+      operationId: getJournalEntry
+      tags: [journal]
+      summary: Get a journal entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Journal entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntry"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateJournalEntry
+      tags: [journal]
+      summary: Update a journal entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateJournalEntryBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntry"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteJournalEntry
+      tags: [journal]
+      summary: Delete a journal entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ── METRICS ─────────────────────────────────────────────────────────────────
+
+  /metrics:
+    get:
+      operationId: listMetrics
+      tags: [metrics]
+      summary: List active metrics
+      responses:
+        "200":
+          description: Metrics list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Metric"
+    post:
+      operationId: createMetric
+      tags: [metrics]
+      summary: Create a metric
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMetricBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Metric"
+
+  /metrics/{id}:
+    get:
+      operationId: getMetric
+      tags: [metrics]
+      summary: Get a metric with values
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Metric detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateMetric
+      tags: [metrics]
+      summary: Update a metric
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMetricBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Metric"
+        "404":
+          description: Not found
+
+  /metrics/{id}/values:
+    post:
+      operationId: logMetricValue
+      tags: [metrics]
+      summary: Log a metric value
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogMetricValueBody"
+      responses:
+        "201":
+          description: Logged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricValue"
+
+  # ── DECISIONS ────────────────────────────────────────────────────────────────
+
+  /decisions:
+    get:
+      operationId: listDecisions
+      tags: [decisions]
+      summary: List decision log items
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, closed]
+        - name: tag
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: includeArchived
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Decisions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DecisionLogItem"
+    post:
+      operationId: createDecision
+      tags: [decisions]
+      summary: Create a decision log item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDecisionBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionLogItem"
+
+  /decisions/{id}:
+    get:
+      operationId: getDecision
+      tags: [decisions]
+      summary: Get a decision log item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Decision detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateDecision
+      tags: [decisions]
+      summary: Update a decision log item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDecisionBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionLogItem"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteDecision
+      tags: [decisions]
+      summary: Delete a decision
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+
+  /decisions/{id}/comments:
+    get:
+      operationId: listDecisionComments
+      tags: [decisions]
+      summary: List comments for a decision
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DecisionComment"
+    post:
+      operationId: addDecisionComment
+      tags: [decisions]
+      summary: Add a comment to a decision
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDecisionCommentBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionComment"
+
+  # ── DASHBOARD ────────────────────────────────────────────────────────────────
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get home dashboard summary
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    # ── JOURNAL ───────────────────────────────────────────────────────────────
+
+    JournalTag:
+      type: string
+      enum:
+        - Product
+        - Growth
+        - Team
+        - Fundraising
+        - Operations
+        - Finance
+        - Reflection
+
+    JournalEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/JournalTag"
+        isPromoted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - content
+        - tags
+        - isPromoted
+        - createdAt
+        - updatedAt
+
+    CreateJournalEntryBody:
+      type: object
+      properties:
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/JournalTag"
+        isPromoted:
+          type: boolean
+      required:
+        - content
+        - tags
+
+    UpdateJournalEntryBody:
+      type: object
+      properties:
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/JournalTag"
+        isPromoted:
+          type: boolean
+
+    # ── METRICS ───────────────────────────────────────────────────────────────
+
+    MetricClass:
+      type: string
+      enum: [revenue, retention, engagement, unit_economics]
+
+    MetricPeriod:
+      type: string
+      enum: [daily, weekly, monthly]
+
+    MetricDirection:
+      type: string
+      enum: [higher_is_better, lower_is_better, context_dependent]
+
+    Metric:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        class:
+          $ref: "#/components/schemas/MetricClass"
+        period:
+          $ref: "#/components/schemas/MetricPeriod"
+        direction:
+          $ref: "#/components/schemas/MetricDirection"
+        formulaNumerator:
+          type: string
+          nullable: true
+        formulaDenominator:
+          type: string
+          nullable: true
+        isArchived:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        currentValue:
+          type: number
+          nullable: true
+        previousValue:
+          type: number
+          nullable: true
+        lastUpdatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - name
+        - class
+        - period
+        - direction
+        - isArchived
+        - createdAt
+
+    MetricValue:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        metricId:
+          type: string
+          format: uuid
+        value:
+          type: number
+        recordedDate:
+          type: string
+          format: date
+        isCorrection:
+          type: boolean
+        originalValue:
+          type: number
+          nullable: true
+        correctionNote:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - metricId
+        - value
+        - recordedDate
+        - isCorrection
+        - createdAt
+
+    MetricDetail:
+      type: object
+      properties:
+        metric:
+          $ref: "#/components/schemas/Metric"
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricValue"
+        linkedDecisions:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionLogItem"
+      required:
+        - metric
+        - values
+        - linkedDecisions
+
+    CreateMetricBody:
+      type: object
+      properties:
+        name:
+          type: string
+        class:
+          $ref: "#/components/schemas/MetricClass"
+        period:
+          $ref: "#/components/schemas/MetricPeriod"
+        direction:
+          $ref: "#/components/schemas/MetricDirection"
+        formulaNumerator:
+          type: string
+          nullable: true
+        formulaDenominator:
+          type: string
+          nullable: true
+      required:
+        - name
+        - class
+        - period
+        - direction
+
+    UpdateMetricBody:
+      type: object
+      properties:
+        name:
+          type: string
+        isArchived:
+          type: boolean
+
+    LogMetricValueBody:
+      type: object
+      properties:
+        value:
+          type: number
+        recordedDate:
+          type: string
+          format: date
+        isCorrection:
+          type: boolean
+        originalValue:
+          type: number
+          nullable: true
+        correctionNote:
+          type: string
+          nullable: true
+      required:
+        - value
+        - recordedDate
+
+    # ── DECISIONS ─────────────────────────────────────────────────────────────
+
+    DecisionStatus:
+      type: string
+      enum: [open, closed]
+
+    DecisionLogItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sourceEntryId:
+          type: string
+          format: uuid
+          nullable: true
+        linkedMetricId:
+          type: string
+          format: uuid
+          nullable: true
+        linkedMetricName:
+          type: string
+          nullable: true
+        title:
+          type: string
+        contextSummary:
+          type: string
+        optionsConsidered:
+          type: array
+          items:
+            type: string
+        chosenOption:
+          type: string
+        expectedOutcome:
+          type: string
+          nullable: true
+        actualOutcome:
+          type: string
+          nullable: true
+        lessonsLearned:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/JournalTag"
+        status:
+          $ref: "#/components/schemas/DecisionStatus"
+        hasComments:
+          type: boolean
+        isArchived:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - contextSummary
+        - optionsConsidered
+        - chosenOption
+        - tags
+        - status
+        - hasComments
+        - isArchived
+        - createdAt
+
+    DecisionDetail:
+      type: object
+      properties:
+        decision:
+          $ref: "#/components/schemas/DecisionLogItem"
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionComment"
+      required:
+        - decision
+        - comments
+
+    DecisionComment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        decisionId:
+          type: string
+          format: uuid
+        authorName:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - decisionId
+        - authorName
+        - content
+        - createdAt
+
+    CreateDecisionBody:
+      type: object
+      properties:
+        sourceEntryId:
+          type: string
+          format: uuid
+          nullable: true
+        linkedMetricId:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+          maxLength: 120
+        contextSummary:
+          type: string
+          maxLength: 500
+        optionsConsidered:
+          type: array
+          items:
+            type: string
+        chosenOption:
+          type: string
+        expectedOutcome:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/JournalTag"
+      required:
+        - title
+        - contextSummary
+        - optionsConsidered
+        - chosenOption
+        - tags
+
+    UpdateDecisionBody:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 120
+        contextSummary:
+          type: string
+          maxLength: 500
+        optionsConsidered:
+          type: array
+          items:
+            type: string
+        chosenOption:
+          type: string
+        expectedOutcome:
+          type: string
+          nullable: true
+        actualOutcome:
+          type: string
+          nullable: true
+        lessonsLearned:
+          type: string
+          nullable: true
+        linkedMetricId:
+          type: string
+          format: uuid
+          nullable: true
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/JournalTag"
+        status:
+          $ref: "#/components/schemas/DecisionStatus"
+        isArchived:
+          type: boolean
+
+    CreateDecisionCommentBody:
+      type: object
+      properties:
+        authorName:
+          type: string
+        content:
+          type: string
+      required:
+        - authorName
+        - content
+
+    # ── DASHBOARD ─────────────────────────────────────────────────────────────
+
+    SparklinePoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        value:
+          type: number
+      required:
+        - date
+        - value
+
+    MetricSparkline:
+      type: object
+      properties:
+        metricId:
+          type: string
+          format: uuid
+        metricName:
+          type: string
+        currentValue:
+          type: number
+          nullable: true
+        previousValue:
+          type: number
+          nullable: true
+        direction:
+          $ref: "#/components/schemas/MetricDirection"
+        class:
+          $ref: "#/components/schemas/MetricClass"
+        sparkline:
+          type: array
+          items:
+            $ref: "#/components/schemas/SparklinePoint"
+      required:
+        - metricId
+        - metricName
+        - direction
+        - class
+        - sparkline
+
+    DailyPrompt:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [stale_metric, open_decision, default]
+        message:
+          type: string
+        hasEntryToday:
+          type: boolean
+      required:
+        - type
+        - message
+        - hasEntryToday
+
+    DashboardSummary:
+      type: object
+      properties:
+        prompt:
+          $ref: "#/components/schemas/DailyPrompt"
+        topMetrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricSparkline"
+        recentDecisions:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionLogItem"
+        totalJournalEntries:
+          type: integer
+        totalDecisions:
+          type: integer
+        openDecisions:
+          type: integer
+      required:
+        - prompt
+        - topMetrics
+        - recentDecisions
+        - totalJournalEntries
+        - totalDecisions
+        - openDecisions
