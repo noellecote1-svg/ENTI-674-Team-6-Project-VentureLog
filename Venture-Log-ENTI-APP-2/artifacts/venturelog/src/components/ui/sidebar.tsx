@@ -1,3 +1,17 @@
+/**
+ * components/ui/sidebar.tsx — Sidebar Component (shadcn/ui)
+ *
+ * A full-featured sidebar layout system with collapsible behavior,
+ * keyboard shortcuts, and mobile support via a Sheet panel.
+ * Note: VentureLog uses a custom Sidebar implementation in
+ * components/layout/Sidebar.tsx rather than this shadcn component,
+ * as the custom version is tailored to VentureLog's specific
+ * navigation structure and neon design theme.
+ *
+ * Exports: Sidebar, SidebarProvider, SidebarTrigger, SidebarContent,
+ *          SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem,
+ *          and many more sidebar sub-components
+ */
 "use client"
 
 import * as React from "react"
