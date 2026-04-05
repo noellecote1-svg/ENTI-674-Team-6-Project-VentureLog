@@ -1,3 +1,14 @@
+/**
+ * components/ui/carousel.tsx — Carousel Component (shadcn/ui)
+ *
+ * A scrollable carousel/slider built on Embla Carousel.
+ * Supports horizontal and vertical orientations, keyboard navigation,
+ * and programmatic control via the CarouselApi.
+ * Not currently used in VentureLog but available for future onboarding flows.
+ *
+ * Exports: Carousel, CarouselContent, CarouselItem,
+ *          CarouselPrevious, CarouselNext, CarouselApi
+ */
 import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
