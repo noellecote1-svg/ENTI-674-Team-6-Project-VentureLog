@@ -1,3 +1,12 @@
+/**
+ * components/ui/alert.tsx — Alert Component (shadcn/ui)
+ *
+ * Displays a callout message for important information or errors.
+ * Variants: default (informational) and destructive (error/warning).
+ * Supports an optional icon positioned to the left of the content.
+ *
+ * Exports: Alert, AlertTitle, AlertDescription
+ */
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
