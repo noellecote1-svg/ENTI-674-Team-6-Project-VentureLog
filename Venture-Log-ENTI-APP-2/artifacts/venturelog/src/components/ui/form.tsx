@@ -1,3 +1,18 @@
+/**
+ * components/ui/form.tsx — Form Component (shadcn/ui + react-hook-form)
+ *
+ * Integrates react-hook-form with accessible form field components.
+ * Automatically wires up labels, error messages, and aria attributes
+ * to their corresponding inputs using React Context.
+ * Provides useFormField() hook for accessing form state in custom inputs.
+ *
+ * Note: VentureLog uses controlled components with useState rather than
+ * react-hook-form in most places. This component is available for future
+ * more complex form needs.
+ *
+ * Exports: Form, FormField, FormItem, FormLabel, FormControl,
+ *          FormDescription, FormMessage, useFormField
+ */
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
