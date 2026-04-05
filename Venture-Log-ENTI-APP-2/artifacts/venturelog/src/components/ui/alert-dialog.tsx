@@ -1,3 +1,14 @@
+/**
+ * components/ui/alert-dialog.tsx — Alert Dialog Component (shadcn/ui)
+ *
+ * A modal dialog that interrupts the user with important content requiring
+ * confirmation before proceeding. Used for destructive actions like deleting
+ * or archiving decisions that cannot be undone.
+ *
+ * Exports: AlertDialog, AlertDialogTrigger, AlertDialogContent,
+ *          AlertDialogHeader, AlertDialogFooter, AlertDialogTitle,
+ *          AlertDialogDescription, AlertDialogAction, AlertDialogCancel
+ */
 import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 
