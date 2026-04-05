@@ -1,3 +1,13 @@
+/**
+ * components/ui/progress.tsx — Progress Bar Component (shadcn/ui)
+ *
+ * A horizontal progress bar that fills from left to right.
+ * Uses the primary (cyan) color with a smooth CSS transition.
+ * Available for showing completion percentages, loading states,
+ * or onboarding progress in future phases.
+ *
+ * Exports: Progress
+ */
 "use client"
 
 import * as React from "react"
