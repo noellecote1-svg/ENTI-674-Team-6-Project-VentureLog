@@ -1,3 +1,13 @@
+/**
+ * components/ui/button-group.tsx — Button Group Component (shadcn/ui)
+ *
+ * Groups multiple buttons or inputs together into a single connected unit,
+ * removing the borders between them for a cohesive appearance.
+ * Supports horizontal (default) and vertical orientations.
+ * Used for segmented controls and inline action groups.
+ *
+ * Exports: ButtonGroup, ButtonGroupSeparator, ButtonGroupText, buttonGroupVariants
+ */
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
