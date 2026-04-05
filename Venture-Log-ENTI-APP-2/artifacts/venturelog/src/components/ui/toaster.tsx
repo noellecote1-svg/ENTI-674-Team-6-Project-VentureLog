@@ -1,3 +1,14 @@
+/**
+ * components/ui/toaster.tsx — Toaster Component (shadcn/ui)
+ *
+ * Renders all active toast notifications from the useToast hook.
+ * Mounted once in App.tsx so toasts can appear from any page.
+ * Iterates over the current toasts array and renders each one
+ * using the Toast, ToastTitle, ToastDescription, and ToastClose
+ * primitives from toast.tsx.
+ *
+ * Exports: Toaster
+ */
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
