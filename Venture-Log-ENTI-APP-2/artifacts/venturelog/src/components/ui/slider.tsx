@@ -1,3 +1,12 @@
+/**
+ * components/ui/slider.tsx — Slider Component (shadcn/ui)
+ *
+ * A draggable range input built on Radix UI's Slider primitive.
+ * Uses the primary (cyan) color for the active track and thumb.
+ * Available for future use in settings or filter range inputs.
+ *
+ * Exports: Slider
+ */
 import * as React from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 
