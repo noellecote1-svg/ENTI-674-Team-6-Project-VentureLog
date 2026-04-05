@@ -1,3 +1,18 @@
+/**
+ * components/ui/chart.tsx — Chart Container Component (shadcn/ui)
+ *
+ * A wrapper around Recharts that provides consistent theming,
+ * color management, tooltips, and legends aligned with the app's
+ * design system. Injects CSS custom properties for chart colors
+ * based on the ChartConfig passed in.
+ *
+ * Note: VentureLog's metric sparklines and trend charts use Recharts
+ * directly (not this wrapper) for simpler inline usage. This component
+ * is available for more complex multi-series charts.
+ *
+ * Exports: ChartContainer, ChartTooltip, ChartTooltipContent,
+ *          ChartLegend, ChartLegendContent, ChartStyle
+ */
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 
