@@ -1,3 +1,22 @@
+/**
+ * pages/decisions/index.tsx — Decision Log List Page
+ *
+ * Displays all decisions in a filterable, searchable table.
+ * Provides a "New Decision" dialog for logging decisions directly
+ * from this page (as opposed to promoting from a journal entry).
+ *
+ * Filter options:
+ *   - Text search (title)
+ *   - Status (open / closed / all)
+ *   - Tag filter
+ *   - Show/hide archived decisions
+ *
+ * The table shows: title, context preview, status badge, tags,
+ * linked metric name, and date. Clicking a row navigates to the detail page.
+ *
+ * Route: /decisions
+ */
+
 import { useState } from "react";
 import { useListDecisions, getListDecisionsQueryKey, useCreateDecision } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,20 +34,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function DecisionsList() {
+  // ── Filter State ───────────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ListDecisionsStatus | "all">("all");
   const [tag, setTag] = useState<string | "all">("all");
   const [showArchived, setShowArchived] = useState(false);
+
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
+  // ── New Decision Dialog State ──────────────────────────────────────────────
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [decisionForm, setDecisionForm] = useState({
-    title: "", contextSummary: "", optionsConsidered: [""], chosenOption: "", expectedOutcome: "", tags: [] as string[]
+    title: "",
+    contextSummary: "",
+    optionsConsidered: [""],
+    chosenOption: "",
+    expectedOutcome: "",
+    tags: [] as string[]
   });
-  
+
   const createDecision = useCreateDecision();
 
+  // Build query params from current filter state
   const queryParams = {
     search: search || undefined,
     status: status !== "all" ? status : undefined,
@@ -40,6 +68,11 @@ export default function DecisionsList() {
     query: { queryKey: getListDecisionsQueryKey(queryParams) }
   });
 
+  /**
+   * handleCreateDecision()
+   * Validates the form and creates a new decision via the API.
+   * Resets the form and closes the dialog on success.
+   */
   const handleCreateDecision = async () => {
     if (!decisionForm.title || !decisionForm.contextSummary || !decisionForm.chosenOption) return;
     try {
@@ -63,11 +96,14 @@ export default function DecisionsList() {
 
   return (
     <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6 sm:space-y-8 pb-24">
+      {/* Page header + New Decision button */}
       <header className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Decision Log</h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">A permanent record of why you chose what you chose.</p>
         </div>
+
+        {/* New Decision dialog */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto" data-testid="button-new-decision">
@@ -81,17 +117,17 @@ export default function DecisionsList() {
             <div className="space-y-4 mt-4 max-h-[70vh] overflow-y-auto px-1">
               <div className="space-y-2">
                 <Label>Decision Title <span className="text-destructive">*</span></Label>
-                <Input 
-                  value={decisionForm.title} 
+                <Input
+                  value={decisionForm.title}
                   maxLength={120}
                   onChange={e => setDecisionForm({...decisionForm, title: e.target.value})}
-                  placeholder="e.g. Pivot GTM strategy to enterprise" 
+                  placeholder="e.g. Pivot GTM strategy to enterprise"
                   data-testid="input-decision-title"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Context Summary <span className="text-destructive">*</span></Label>
-                <Textarea 
+                <Textarea
                   value={decisionForm.contextSummary}
                   maxLength={500}
                   onChange={e => setDecisionForm({...decisionForm, contextSummary: e.target.value})}
@@ -99,24 +135,25 @@ export default function DecisionsList() {
                   className="h-20"
                 />
               </div>
+              {/* Dynamic options list */}
               <div className="space-y-2">
                 <Label>Options Considered</Label>
                 {decisionForm.optionsConsidered.map((opt, i) => (
-                  <Input 
-                    key={i} 
+                  <Input
+                    key={i}
                     value={opt}
                     onChange={e => {
                       const newOpts = [...decisionForm.optionsConsidered];
                       newOpts[i] = e.target.value;
                       setDecisionForm({...decisionForm, optionsConsidered: newOpts});
                     }}
-                    placeholder={`Option ${i+1}`} 
+                    placeholder={`Option ${i+1}`}
                     className="mb-2"
                   />
                 ))}
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   size="sm"
                   onClick={() => setDecisionForm({...decisionForm, optionsConsidered: [...decisionForm.optionsConsidered, ""]})}
                 >
@@ -125,21 +162,22 @@ export default function DecisionsList() {
               </div>
               <div className="space-y-2">
                 <Label>Chosen Option <span className="text-destructive">*</span></Label>
-                <Input 
+                <Input
                   value={decisionForm.chosenOption}
                   onChange={e => setDecisionForm({...decisionForm, chosenOption: e.target.value})}
-                  placeholder="What did you decide?" 
+                  placeholder="What did you decide?"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Expected Outcome</Label>
-                <Textarea 
+                <Textarea
                   value={decisionForm.expectedOutcome}
                   onChange={e => setDecisionForm({...decisionForm, expectedOutcome: e.target.value})}
                   placeholder="What do we expect to happen?"
                   className="h-16"
                 />
               </div>
+              {/* Tag selection — click to toggle */}
               <div className="space-y-2">
                 <Label>Tags</Label>
                 <div className="flex flex-wrap gap-2">
@@ -151,7 +189,9 @@ export default function DecisionsList() {
                       onClick={() => {
                         setDecisionForm(prev => ({
                           ...prev,
-                          tags: prev.tags.includes(t) ? prev.tags.filter(x => x !== t) : [...prev.tags, t]
+                          tags: prev.tags.includes(t)
+                            ? prev.tags.filter(x => x !== t)
+                            : [...prev.tags, t]
                         }));
                       }}
                     >
@@ -160,9 +200,9 @@ export default function DecisionsList() {
                   ))}
                 </div>
               </div>
-              <Button 
-                onClick={handleCreateDecision} 
-                className="w-full" 
+              <Button
+                onClick={handleCreateDecision}
+                className="w-full"
                 disabled={!decisionForm.title || !decisionForm.contextSummary || !decisionForm.chosenOption}
                 data-testid="button-submit-decision"
               >
@@ -173,12 +213,14 @@ export default function DecisionsList() {
         </Dialog>
       </header>
 
+      {/* Filter bar */}
       <div className="flex flex-col md:flex-row gap-4 bg-card p-4 rounded-lg border shadow-sm md:items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto flex-1">
+          {/* Text search */}
           <div className="relative flex-1 md:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search decisions..." 
+            <Input
+              placeholder="Search decisions..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 w-full"
@@ -207,10 +249,11 @@ export default function DecisionsList() {
             </Select>
           </div>
         </div>
+        {/* Toggle archived decisions */}
         <div className="flex items-center justify-end gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setShowArchived(!showArchived)}
             className={showArchived ? "bg-muted w-full md:w-auto" : "w-full md:w-auto"}
             data-testid="button-toggle-archived"
@@ -220,6 +263,7 @@ export default function DecisionsList() {
         </div>
       </div>
 
+      {/* Decisions table */}
       <div className="bg-card border rounded-lg shadow-sm overflow-hidden overflow-x-auto">
         <table className="w-full text-sm min-w-[600px]">
           <thead className="bg-muted/50 border-b">
@@ -238,8 +282,8 @@ export default function DecisionsList() {
               <tr><td colSpan={5} className="p-12 text-center text-muted-foreground">No decisions found matching filters.</td></tr>
             ) : (
               decisions?.map(decision => (
-                <tr 
-                  key={decision.id} 
+                <tr
+                  key={decision.id}
                   className="hover:bg-muted/30 transition-colors cursor-pointer group"
                   onClick={() => setLocation(`/decisions/${decision.id}`)}
                   data-testid={`row-decision-${decision.id}`}
@@ -252,11 +296,13 @@ export default function DecisionsList() {
                     <div className="text-muted-foreground line-clamp-1">{decision.contextSummary}</div>
                   </td>
                   <td className="p-4">
-                    <Badge variant={decision.status === 'open' ? 'default' : 'secondary'} 
+                    {/* Orange = open, muted = closed */}
+                    <Badge variant={decision.status === 'open' ? 'default' : 'secondary'}
                       className={decision.status === 'open' ? 'bg-orange-500/15 text-orange-300 border-orange-500/30 hover:bg-orange-500/20 shadow-none' : 'shadow-none'}>
                       {decision.status.toUpperCase()}
                     </Badge>
                   </td>
+                  {/* Tags — show max 2, then "+N more" */}
                   <td className="p-4 hidden md:table-cell">
                     <div className="flex flex-wrap gap-1">
                       {decision.tags.slice(0, 2).map(t => (
