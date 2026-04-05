@@ -1,3 +1,12 @@
+/**
+ * components/ui/accordion.tsx — Accordion Component (shadcn/ui)
+ *
+ * Collapsible content sections with animated open/close transitions.
+ * Built on Radix UI's Accordion primitive for full accessibility.
+ * Used for expandable FAQ-style content and collapsible sections.
+ *
+ * Exports: Accordion, AccordionItem, AccordionTrigger, AccordionContent
+ */
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { ChevronDown } from "lucide-react"
