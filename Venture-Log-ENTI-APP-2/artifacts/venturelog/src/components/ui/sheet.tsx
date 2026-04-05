@@ -1,3 +1,14 @@
+/**
+ * components/ui/sheet.tsx — Sheet Component (shadcn/ui)
+ *
+ * A panel that slides in from any edge of the screen (top, bottom, left, right).
+ * Used in VentureLog's Journal list page for the mobile filter sidebar —
+ * the filter panel slides in from the left when the hamburger menu is tapped.
+ * Built on Radix UI's Dialog primitive with slide animations.
+ *
+ * Exports: Sheet, SheetPortal, SheetOverlay, SheetTrigger, SheetClose,
+ *          SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription
+ */
 "use client"
 
 import * as React from "react"
