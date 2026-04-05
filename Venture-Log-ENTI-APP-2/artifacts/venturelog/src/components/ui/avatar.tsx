@@ -1,3 +1,12 @@
+/**
+ * components/ui/avatar.tsx — Avatar Component (shadcn/ui)
+ *
+ * Displays a user profile image with an automatic fallback to initials
+ * or a placeholder when the image fails to load.
+ * Built on Radix UI's Avatar primitive.
+ *
+ * Exports: Avatar, AvatarImage, AvatarFallback
+ */
 "use client"
 
 import * as React from "react"
