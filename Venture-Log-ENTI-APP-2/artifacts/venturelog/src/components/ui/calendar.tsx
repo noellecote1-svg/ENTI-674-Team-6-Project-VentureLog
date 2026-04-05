@@ -1,3 +1,13 @@
+/**
+ * components/ui/calendar.tsx — Calendar Component (shadcn/ui)
+ *
+ * A full date-picker calendar built on react-day-picker.
+ * Supports single date, range, and multiple date selection modes.
+ * Includes dropdown navigation for month/year selection.
+ * Not currently used in VentureLog but available for future date filtering.
+ *
+ * Exports: Calendar, CalendarDayButton
+ */
 "use client"
 
 import * as React from "react"
