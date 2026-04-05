@@ -1,3 +1,13 @@
+/**
+ * components/ui/tooltip.tsx — Tooltip Component (shadcn/ui)
+ *
+ * A small floating label that appears on hover to provide additional
+ * context for UI elements. Built on Radix UI's Tooltip primitive.
+ * The TooltipProvider is mounted in App.tsx to enable tooltips globally.
+ * Uses the primary (cyan) background to match VentureLog's design.
+ *
+ * Exports: Tooltip, TooltipTrigger, TooltipContent, TooltipProvider
+ */
 "use client"
 
 import * as React from "react"
