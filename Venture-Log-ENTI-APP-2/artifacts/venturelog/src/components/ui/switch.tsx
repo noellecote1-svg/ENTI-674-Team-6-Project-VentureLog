@@ -1,3 +1,13 @@
+/**
+ * components/ui/switch.tsx — Switch Component (shadcn/ui)
+ *
+ * A toggle switch for boolean on/off settings.
+ * Built on Radix UI's Switch primitive with smooth slide animation.
+ * Used in VentureLog's journal editor for the "Promote to Decision Log"
+ * toggle — the key feature for converting journal entries into decisions.
+ *
+ * Exports: Switch
+ */
 import * as React from "react"
 import * as SwitchPrimitives from "@radix-ui/react-switch"
 
