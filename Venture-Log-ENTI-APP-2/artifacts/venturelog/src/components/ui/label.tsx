@@ -1,3 +1,13 @@
+/**
+ * components/ui/label.tsx — Label Component (shadcn/ui)
+ *
+ * An accessible form label built on Radix UI's Label primitive.
+ * Automatically grays out when its associated input is disabled.
+ * Used on all form fields across VentureLog — decisions, metrics,
+ * journal editor, and the investor update form.
+ *
+ * Exports: Label
+ */
 "use client"
 
 import * as React from "react"
