@@ -1,3 +1,21 @@
+/**
+ * components/ui/button.tsx — Button Component (shadcn/ui + VentureLog customizations)
+ *
+ * The primary interactive element used throughout VentureLog.
+ * Customized from base shadcn/ui with VentureLog-specific styling:
+ *   - Default variant includes neon-glow effect (cyan halo on primary CTAs)
+ *   - hover-elevate and active-elevate-2 for subtle depth on interaction
+ *   - Adjusted min-heights for better touch targets on mobile
+ *   - Custom border colors using CSS variables (--button-outline, etc.)
+ *
+ * Variants: default (neon cyan), destructive, outline, secondary, ghost, link
+ * Sizes: default, sm, lg, icon
+ *
+ * Also exports buttonVariants for use in non-button elements (e.g. links
+ * styled as buttons, pagination items).
+ *
+ * Exports: Button, buttonVariants
+ */
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
