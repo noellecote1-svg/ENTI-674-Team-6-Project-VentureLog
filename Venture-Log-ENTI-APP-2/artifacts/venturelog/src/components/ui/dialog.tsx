@@ -1,3 +1,19 @@
+/**
+ * components/ui/dialog.tsx — Dialog Component (shadcn/ui)
+ *
+ * A modal dialog overlay used extensively throughout VentureLog for:
+ *   - "New Decision" form
+ *   - "Close Decision" form (recording actual outcome)
+ *   - "Add Metric" form
+ *   - Any action requiring focused user input
+ *
+ * Built on Radix UI's Dialog primitive with smooth enter/exit animations.
+ * Includes a close (X) button in the top-right corner.
+ * Traps focus inside the dialog while open for accessibility.
+ *
+ * Exports: Dialog, DialogPortal, DialogOverlay, DialogTrigger, DialogClose,
+ *          DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription
+ */
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
