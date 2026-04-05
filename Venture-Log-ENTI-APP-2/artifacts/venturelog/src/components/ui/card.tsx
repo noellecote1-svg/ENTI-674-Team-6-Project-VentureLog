@@ -1,3 +1,20 @@
+/**
+ * components/ui/card.tsx — Card Component (shadcn/ui)
+ *
+ * The primary surface container used throughout VentureLog.
+ * Every metric, decision, journal entry, and dashboard section
+ * is displayed inside a Card. Applies the app's card background color,
+ * rounded corners, border, and shadow from the design system.
+ *
+ * Sub-components allow structured content layout:
+ *   CardHeader   — top section with title and description
+ *   CardTitle    — bold heading inside the header
+ *   CardDescription — secondary text below the title
+ *   CardContent  — main body content area
+ *   CardFooter   — bottom section for actions
+ *
+ * Exports: Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent
+ */
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
