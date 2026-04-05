@@ -1,3 +1,12 @@
+/**
+ * components/ui/checkbox.tsx — Checkbox Component (shadcn/ui)
+ *
+ * An accessible checkbox input built on Radix UI's Checkbox primitive.
+ * Uses the primary (cyan) color for the checked state to match
+ * VentureLog's design system.
+ *
+ * Exports: Checkbox
+ */
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"
