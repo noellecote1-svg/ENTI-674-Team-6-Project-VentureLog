@@ -1,3 +1,12 @@
+/**
+ * components/ui/toggle.tsx — Toggle Component (shadcn/ui)
+ *
+ * A single two-state button (on/off) built on Radix UI's Toggle primitive.
+ * Visually shows its active state with an accent background.
+ * Used as the building block for ToggleGroup.
+ *
+ * Exports: Toggle, toggleVariants
+ */
 import * as React from "react"
 import * as TogglePrimitive from "@radix-ui/react-toggle"
 import { cva, type VariantProps } from "class-variance-authority"
