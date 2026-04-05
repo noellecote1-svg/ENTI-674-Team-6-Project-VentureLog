@@ -1,3 +1,25 @@
+/**
+ * pages/ai-coach.tsx — AI Executive Coach Page
+ *
+ * The frontend for VentureLog's AI coaching feature. Provides a full
+ * chat interface where founders can have ongoing coaching conversations
+ * with a GPT-powered executive coach that has context on their business data.
+ *
+ * Layout:
+ *   - Left sidebar: list of past conversations + "New Session" button
+ *   - Main area: active conversation messages + input field
+ *
+ * Key behaviors:
+ *   - New conversations are created automatically on first message
+ *   - Conversation title is set to the first 60 characters of the first message
+ *   - Message history persists in the database (survives page refresh)
+ *   - Shows suggested starter questions when no conversation is active
+ *   - Displays an animated cursor while waiting for the AI response
+ *   - Enter sends, Shift+Enter adds a new line (standard chat UX)
+ *
+ * Route: /ai-coach
+ */
+
 import { useState, useRef, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -15,30 +37,45 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
+/**
+ * StreamingMessage type
+ * Extends the base message type with a `streaming` flag that triggers
+ * the animated typing cursor while waiting for the AI response.
+ */
 type StreamingMessage = {
   role: "user" | "assistant";
   content: string;
-  streaming?: boolean;
+  streaming?: boolean; // When true, shows blinking cursor at end of message
 };
 
 export default function AiCoach() {
   const queryClient = useQueryClient();
+
+  // ── State ──────────────────────────────────────────────────────────────────
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
   const [input, setInput] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false); // True while waiting for AI response
   const [streamingMessages, setStreamingMessages] = useState<StreamingMessage[]>([]);
-  const [pendingTitle, setPendingTitle] = useState<string | null>(null);
+  const [pendingTitle, setPendingTitle] = useState<string | null>(null); // Title before DB confirms it
+
+  // Refs for DOM manipulation — scrolling to bottom and auto-focusing textarea
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // ── API Hooks ──────────────────────────────────────────────────────────────
   const { data: conversations = [] } = useListCoachConversations();
   const { data: activeConversation } = useGetCoachConversation(activeConversationId ?? 0, {
     query: { enabled: activeConversationId !== null },
   });
-
   const createConversation = useCreateCoachConversation();
   const deleteConversation = useDeleteCoachConversation();
 
+  // ── Effects ────────────────────────────────────────────────────────────────
+
+  /**
+   * Sync local message state with the database when a conversation loads.
+   * This populates the chat when the user switches between conversations.
+   */
   useEffect(() => {
     if (activeConversation?.messages) {
       setStreamingMessages(
@@ -50,10 +87,17 @@ export default function AiCoach() {
     }
   }, [activeConversation?.messages]);
 
+  /**
+   * Auto-scroll to the bottom of the message list whenever new messages arrive.
+   * Smooth scrolling for a polished chat experience.
+   */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [streamingMessages]);
 
+  // ── Event Handlers ─────────────────────────────────────────────────────────
+
+  /** Switch to a different conversation — resets all local state */
   async function handleSelectConversation(id: number) {
     setIsStreaming(false);
     setActiveConversationId(id);
@@ -62,6 +106,7 @@ export default function AiCoach() {
     setInput("");
   }
 
+  /** Start a completely new coaching session — clears everything */
   async function handleNewConversation() {
     setActiveConversationId(null);
     setStreamingMessages([]);
@@ -70,8 +115,9 @@ export default function AiCoach() {
     setTimeout(() => textareaRef.current?.focus(), 50);
   }
 
+  /** Delete a conversation — if it's the active one, reset to new session state */
   async function handleDeleteConversation(id: number, e: React.MouseEvent) {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent triggering conversation selection
     if (activeConversationId === id) {
       setActiveConversationId(null);
       setStreamingMessages([]);
@@ -80,6 +126,18 @@ export default function AiCoach() {
     await queryClient.invalidateQueries({ queryKey: getListCoachConversationsQueryKey() });
   }
 
+  /**
+   * handleSend()
+   * Sends a message to the AI coach.
+   *
+   * Process:
+   *   1. Immediately add the user's message to local state (optimistic update)
+   *   2. Add a placeholder assistant message with streaming=true (shows cursor)
+   *   3. If no conversation exists yet, create one with first 60 chars as title
+   *   4. POST to the backend API which calls OpenAI
+   *   5. Replace the placeholder with the actual AI response
+   *   6. Handle errors gracefully with a fallback message
+   */
   async function handleSend() {
     const content = input.trim();
     if (!content || isStreaming) return;
@@ -87,12 +145,14 @@ export default function AiCoach() {
     setInput("");
     setIsStreaming(true);
 
+    // Optimistically show the user's message and a loading placeholder
     const userMsg: StreamingMessage = { role: "user", content };
     const assistantMsg: StreamingMessage = { role: "assistant", content: "", streaming: true };
     setStreamingMessages((prev) => [...prev, userMsg, assistantMsg]);
 
     let conversationId = activeConversationId;
 
+    // Auto-create a new conversation on the first message
     if (conversationId === null) {
       const title = content.slice(0, 60) + (content.length > 60 ? "…" : "");
       setPendingTitle(title);
@@ -114,6 +174,7 @@ export default function AiCoach() {
       const data = await response.json();
       const assistantContent: string = data.content ?? "Something went wrong. Please try again.";
 
+      // Replace the streaming placeholder with the real AI response
       setStreamingMessages((prev) => {
         const updated = [...prev];
         const last = updated[updated.length - 1];
@@ -144,6 +205,7 @@ export default function AiCoach() {
     }
   }
 
+  /** Handle keyboard shortcuts — Enter sends, Shift+Enter is a new line */
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -161,23 +223,20 @@ export default function AiCoach() {
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* Sidebar */}
+      {/* ── Sidebar: Conversation History ───────────────────────────────── */}
       <div className="w-64 border-r border-border/40 flex flex-col bg-sidebar">
         <div className="p-4 border-b border-border/40">
           <div className="flex items-center gap-2 mb-4">
             <BrainCircuit className="w-5 h-5 text-primary" />
             <span className="font-semibold">AI Coach</span>
           </div>
-          <Button
-            className="w-full neon-glow"
-            size="sm"
-            onClick={handleNewConversation}
-          >
+          <Button className="w-full neon-glow" size="sm" onClick={handleNewConversation}>
             <Plus className="w-4 h-4 mr-1" />
             New Session
           </Button>
         </div>
 
+        {/* List of past conversations */}
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {conversations.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-8 px-4">
@@ -196,6 +255,7 @@ export default function AiCoach() {
                 )}
               >
                 <span className="truncate flex-1">{c.title}</span>
+                {/* Delete button — only appears on hover */}
                 <Trash2
                   className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-0 group-hover:opacity-60 hover:!opacity-100 text-red-400 transition-opacity"
                   onClick={(e) => handleDeleteConversation(c.id, e)}
@@ -206,9 +266,9 @@ export default function AiCoach() {
         </div>
       </div>
 
-      {/* Main chat area */}
+      {/* ── Main Chat Area ───────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
+        {/* Header shows current conversation title */}
         <div className="px-6 py-4 border-b border-border/40 flex items-center gap-3">
           {activeTitle ? (
             <h2 className="font-semibold truncate">{activeTitle}</h2>
@@ -217,9 +277,10 @@ export default function AiCoach() {
           )}
         </div>
 
-        {/* Messages */}
+        {/* Message list */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
           {displayMessages.length === 0 ? (
+            // Empty state with suggested starter questions
             <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto gap-4">
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
                 <BrainCircuit className="w-8 h-8 text-primary" />
@@ -231,6 +292,7 @@ export default function AiCoach() {
                   open decisions, and recent journal entries — and will push back when needed.
                 </p>
               </div>
+              {/* Clickable suggestions — populate the input when clicked */}
               <div className="text-left space-y-2 w-full">
                 {[
                   "What should I be focused on this week?",
@@ -256,6 +318,7 @@ export default function AiCoach() {
                   msg.role === "user" ? "justify-end" : "justify-start"
                 )}
               >
+                {/* AI avatar — only shown for assistant messages */}
                 {msg.role === "assistant" && (
                   <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
                     <BrainCircuit className="w-4 h-4 text-primary" />
@@ -272,6 +335,7 @@ export default function AiCoach() {
                   {msg.role === "assistant" ? (
                     <div className="whitespace-pre-wrap">
                       {msg.content}
+                      {/* Blinking cursor shown while AI is generating */}
                       {msg.streaming && (
                         <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse" />
                       )}
@@ -280,6 +344,7 @@ export default function AiCoach() {
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   )}
                 </div>
+                {/* User avatar — only shown for user messages */}
                 {msg.role === "user" && (
                   <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
                     <MessageSquare className="w-4 h-4" />
@@ -288,10 +353,11 @@ export default function AiCoach() {
               </div>
             ))
           )}
+          {/* Invisible scroll anchor */}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
+        {/* ── Message Input ──────────────────────────────────────────────── */}
         <div className="px-6 py-4 border-t border-border/40">
           <div className="flex gap-3 items-end">
             <Textarea
