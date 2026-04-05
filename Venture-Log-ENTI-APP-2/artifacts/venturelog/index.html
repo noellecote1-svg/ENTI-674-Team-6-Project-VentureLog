@@ -1,16 +1,41 @@
 <!DOCTYPE html>
+<!--
+  index.html — Application Shell
+
+  This is the single HTML file that serves the entire VentureLog frontend.
+  React mounts into the empty <div id="root"> element and takes over
+  rendering everything from there. This pattern is called a Single Page
+  Application (SPA) — the browser loads this one HTML file once, and
+  React handles all subsequent navigation without full page reloads.
+
+  What this file sets up:
+  - Character encoding and responsive viewport for mobile devices
+  - The VentureLog page title shown in the browser tab
+  - The favicon (the small icon in the browser tab)
+  - Preconnect hints to Google Fonts for faster font loading
+  - The Inter font family (used for all UI text)
+  - The root <div> where React renders the app
+  - The entry point script (main.tsx) that bootstraps React
+-->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- viewport: ensures the app scales correctly on mobile devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>VentureLog</title>
+    <!-- Favicon — the small icon shown in the browser tab -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Preconnect: establishes early connections to Google Fonts servers
+         so fonts load faster when the CSS requests them -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Inter font — used for all body text and UI labels in the app -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
+    <!-- React mounts the entire application into this empty div -->
     <div id="root"></div>
+    <!-- Entry point: loads main.tsx which bootstraps the React app -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
