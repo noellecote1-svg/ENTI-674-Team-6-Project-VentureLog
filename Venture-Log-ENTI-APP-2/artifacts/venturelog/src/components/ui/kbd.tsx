@@ -1,3 +1,13 @@
+
+/**
+ * components/ui/kbd.tsx — Keyboard Shortcut Component (shadcn/ui)
+ *
+ * Renders keyboard key labels in a styled monospace badge.
+ * Used to display keyboard shortcuts in tooltips and help text
+ * (e.g. showing "Enter" to send or "⌘K" for command palette).
+ *
+ * Exports: Kbd, KbdGroup
+ */
 import { cn } from "@/lib/utils"
 
 function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
