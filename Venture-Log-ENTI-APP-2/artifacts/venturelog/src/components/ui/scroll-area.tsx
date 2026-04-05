@@ -1,3 +1,12 @@
+/**
+ * components/ui/scroll-area.tsx — Scroll Area Component (shadcn/ui)
+ *
+ * A custom-styled scrollable container built on Radix UI's ScrollArea.
+ * Provides consistent scrollbar styling across browsers and operating
+ * systems, replacing the native OS scrollbar appearance.
+ *
+ * Exports: ScrollArea, ScrollBar
+ */
 import * as React from "react"
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 
