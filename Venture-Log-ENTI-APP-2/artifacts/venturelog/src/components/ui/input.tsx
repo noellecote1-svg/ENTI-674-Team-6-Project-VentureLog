@@ -1,3 +1,13 @@
+/**
+ * components/ui/input.tsx — Input Component (shadcn/ui)
+ *
+ * The standard text input used throughout VentureLog for all
+ * single-line text entry — search fields, metric names, decision
+ * titles, form fields, and the inline metric value logger.
+ * Styled to match the dark theme with a subtle border and focus ring.
+ *
+ * Exports: Input
+ */
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
