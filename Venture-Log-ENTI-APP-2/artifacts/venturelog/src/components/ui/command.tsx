@@ -1,3 +1,14 @@
+/**
+ * components/ui/command.tsx — Command Menu Component (shadcn/ui)
+ *
+ * A keyboard-navigable command palette built on the cmdk library.
+ * Provides searchable lists of commands/options with filtering.
+ * Used as the foundation for combo-box and search components.
+ * Not currently used in VentureLog but available for future search features.
+ *
+ * Exports: Command, CommandDialog, CommandInput, CommandList,
+ *          CommandEmpty, CommandGroup, CommandItem, CommandShortcut, CommandSeparator
+ */
 "use client"
 
 import * as React from "react"
