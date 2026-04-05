@@ -1,3 +1,13 @@
+/**
+ * components/ui/toggle-group.tsx — Toggle Group Component (shadcn/ui)
+ *
+ * A group of toggle buttons where one or more can be active at a time.
+ * Built on Radix UI's ToggleGroup primitive. Inherits variant and size
+ * from the group context so individual items don't need to repeat them.
+ * Available for filter bars and segmented controls.
+ *
+ * Exports: ToggleGroup, ToggleGroupItem
+ */
 "use client"
 
 import * as React from "react"
