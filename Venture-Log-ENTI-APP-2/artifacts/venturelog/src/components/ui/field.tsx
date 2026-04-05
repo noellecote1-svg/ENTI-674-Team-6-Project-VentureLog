@@ -1,3 +1,14 @@
+/**
+ * components/ui/field.tsx — Form Field Component (shadcn/ui)
+ *
+ * A comprehensive set of building blocks for structured form layouts.
+ * Provides label + input + description + error message groupings
+ * in vertical, horizontal, or responsive orientations.
+ * Used for building accessible, well-structured forms.
+ *
+ * Exports: Field, FieldLabel, FieldDescription, FieldError, FieldGroup,
+ *          FieldLegend, FieldSeparator, FieldSet, FieldContent, FieldTitle
+ */
 "use client"
 
 import { useMemo } from "react"
