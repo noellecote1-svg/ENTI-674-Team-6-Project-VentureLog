@@ -1,3 +1,15 @@
+/**
+ * components/ui/empty.tsx — Empty State Component (shadcn/ui)
+ *
+ * A structured layout for empty state screens — shown when a list or
+ * section has no content yet. Provides a consistent centered layout
+ * with an icon/media area, title, description, and action area.
+ * Used as an alternative pattern to the inline empty state cards
+ * used in VentureLog's page components.
+ *
+ * Exports: Empty, EmptyHeader, EmptyTitle, EmptyDescription,
+ *          EmptyContent, EmptyMedia
+ */
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
