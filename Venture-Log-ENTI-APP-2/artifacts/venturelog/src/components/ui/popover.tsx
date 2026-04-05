@@ -1,3 +1,13 @@
+/**
+ * components/ui/popover.tsx — Popover Component (shadcn/ui)
+ *
+ * A floating panel anchored to a trigger element.
+ * Built on Radix UI's Popover primitive with smooth animations.
+ * Lighter than a dialog — doesn't block the rest of the UI.
+ * Used as the base for date pickers, color pickers, and inline forms.
+ *
+ * Exports: Popover, PopoverTrigger, PopoverContent, PopoverAnchor
+ */
 import * as React from "react"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 
