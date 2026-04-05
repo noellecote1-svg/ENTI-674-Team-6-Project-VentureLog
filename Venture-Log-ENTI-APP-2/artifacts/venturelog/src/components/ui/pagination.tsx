@@ -1,3 +1,13 @@
+/**
+ * components/ui/pagination.tsx — Pagination Component (shadcn/ui)
+ *
+ * Navigation controls for paginated content — previous/next buttons
+ * and numbered page links. Fully accessible with aria-label attributes.
+ * Available for future use if journal entries or decisions are paginated.
+ *
+ * Exports: Pagination, PaginationContent, PaginationLink, PaginationItem,
+ *          PaginationPrevious, PaginationNext, PaginationEllipsis
+ */
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
