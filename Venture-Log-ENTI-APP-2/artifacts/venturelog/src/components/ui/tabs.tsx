@@ -1,3 +1,12 @@
+/**
+ * components/ui/tabs.tsx — Tabs Component (shadcn/ui)
+ *
+ * Tabbed navigation panels built on Radix UI's Tabs primitive.
+ * Shows one content panel at a time based on the active tab.
+ * Available for future use in settings pages or multi-view layouts.
+ *
+ * Exports: Tabs, TabsList, TabsTrigger, TabsContent
+ */
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
