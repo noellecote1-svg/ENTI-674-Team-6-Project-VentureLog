@@ -1,6 +1,26 @@
+/**
+ * pages/journal/edit.tsx — Journal Entry Editor Page
+ *
+ * Used for both creating new entries (/journal/new) and editing
+ * existing ones (/journal/:id/edit). The component detects which
+ * mode it's in based on whether a URL parameter ID exists.
+ *
+ * Key features:
+ *   - Rich markdown editor (MDEditor from @uiw/react-md-editor)
+ *   - Auto-save every 60 seconds if content has changed
+ *   - localStorage draft recovery — if the browser closes unexpectedly,
+ *     the draft is recovered on next visit
+ *   - Tag selection panel at the bottom of the editor
+ *   - "Promote to Decision Log" toggle — extracts a formal decision
+ *     from the journal entry without leaving the editor
+ *   - Save state indicator (Saved / Saving… / Unsaved changes / Save failed)
+ *
+ * Route: /journal/new and /journal/:id/edit
+ */
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useLocation } from "wouter";
-import { 
+import {
   useGetJournalEntry, getGetJournalEntryQueryKey,
   useCreateJournalEntry, useUpdateJournalEntry, useCreateDecision
 } from "@workspace/api-client-react";
@@ -17,57 +37,71 @@ import { TAG_COLORS, ALL_TAGS } from "@/lib/constants";
 import { AlertCircle, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
 import { JournalTag } from "@workspace/api-client-react";
 
+// Save state type — drives the save indicator UI
 type SaveState = "Saved" | "Saving…" | "Unsaved changes" | "Save failed" | "";
 
 export default function JournalEdit() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+
+  // Determine if we're creating new or editing existing
   const isNew = !params.id || params.id === "new";
   const entryId = isNew ? undefined : params.id;
 
+  // Fetch existing entry data (only when editing)
   const { data: entry, isLoading: isEntryLoading } = useGetJournalEntry(
-    entryId!, 
+    entryId!,
     { query: { enabled: !isNew && !!entryId, queryKey: getGetJournalEntryQueryKey(entryId!) } }
   );
 
+  // API mutation hooks
   const createEntry = useCreateJournalEntry();
   const updateEntry = useUpdateJournalEntry();
   const createDecision = useCreateDecision();
 
+  // ── Editor State ───────────────────────────────────────────────────────────
   const [content, setContent] = useState("");
   const [tags, setTags] = useState<JournalTag[]>([]);
   const [saveState, setSaveState] = useState<SaveState>("");
   const [showPromote, setShowPromote] = useState(false);
+
+  // Decision form state — used when promoting an entry to the decision log
   const [decisionForm, setDecisionForm] = useState({
-    title: "", contextSummary: "", optionsConsidered: [""], chosenOption: ""
+    title: "",
+    contextSummary: "",
+    optionsConsidered: [""],
+    chosenOption: ""
   });
 
+  // Refs to access latest state in async callbacks without stale closures
   const contentRef = useRef(content);
   contentRef.current = content;
-  
+
   const tagsRef = useRef(tags);
   tagsRef.current = tags;
-  
+
   const isFirstRender = useRef(true);
   const currentIdRef = useRef<string | undefined>(entryId);
 
+  // ── Load Existing Entry ────────────────────────────────────────────────────
   useEffect(() => {
     if (entry && !isFirstRender.current && currentIdRef.current !== entry.id) {
-       setContent(entry.content);
-       setTags(entry.tags as JournalTag[]);
-       currentIdRef.current = entry.id;
+      setContent(entry.content);
+      setTags(entry.tags as JournalTag[]);
+      currentIdRef.current = entry.id;
     } else if (entry && isFirstRender.current) {
-       setContent(entry.content);
-       setTags(entry.tags as JournalTag[]);
-       currentIdRef.current = entry.id;
-       isFirstRender.current = false;
+      setContent(entry.content);
+      setTags(entry.tags as JournalTag[]);
+      currentIdRef.current = entry.id;
+      isFirstRender.current = false;
     }
   }, [entry]);
 
-  // Local storage draft logic
+  // ── LocalStorage Draft Recovery ────────────────────────────────────────────
   const draftKey = `venturelog_draft_${entryId || "new"}`;
-  
+
+  // Save to localStorage whenever content or tags change
   useEffect(() => {
     if (content) {
       localStorage.setItem(draftKey, JSON.stringify({
@@ -76,6 +110,7 @@ export default function JournalEdit() {
     }
   }, [content, tags, draftKey]);
 
+  // On mount, check for a saved draft and offer to restore it
   useEffect(() => {
     const draft = localStorage.getItem(draftKey);
     if (draft && isFirstRender.current && (!entry || !entry.content)) {
@@ -92,9 +127,18 @@ export default function JournalEdit() {
     isFirstRender.current = false;
   }, [draftKey, entry]);
 
+  // ── Save Logic ─────────────────────────────────────────────────────────────
+
+  /**
+   * handleSave()
+   * Saves the current entry to the database.
+   * - If entry already exists: sends a PATCH request
+   * - If it's new: sends a POST request, then updates the URL to the new ID
+   * Clears the localStorage draft on success.
+   */
   const handleSave = useCallback(async () => {
     if (!contentRef.current.trim()) return;
-    
+
     setSaveState("Saving…");
     try {
       if (currentIdRef.current) {
@@ -104,6 +148,7 @@ export default function JournalEdit() {
         });
         queryClient.invalidateQueries({ queryKey: getGetJournalEntryQueryKey(currentIdRef.current) });
       } else {
+        // Create new entry then redirect to the edit URL with the new ID
         const result = await createEntry.mutateAsync({
           data: { content: contentRef.current, tags: tagsRef.current }
         });
@@ -118,6 +163,7 @@ export default function JournalEdit() {
     }
   }, [createEntry, updateEntry, setLocation, queryClient, draftKey]);
 
+  // Auto-save every 60 seconds if content has changed
   useEffect(() => {
     const timer = setInterval(() => {
       if (contentRef.current !== (entry?.content || "")) {
@@ -127,6 +173,13 @@ export default function JournalEdit() {
     return () => clearInterval(timer);
   }, [handleSave, entry]);
 
+  // ── Promote to Decision Log ────────────────────────────────────────────────
+
+  /**
+   * handlePromoteDecision()
+   * Creates a new decision log item linked to this journal entry,
+   * then marks the entry as "promoted" and navigates to the decisions page.
+   */
   const handlePromoteDecision = async () => {
     if (!decisionForm.title || !decisionForm.contextSummary || !decisionForm.chosenOption) {
       alert("Please fill all required decision fields.");
@@ -161,6 +214,7 @@ export default function JournalEdit() {
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl mx-auto space-y-6 pb-32">
+      {/* Header with back button and save state indicator */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <Button variant="ghost" onClick={() => setLocation("/journal")} className="pl-0 text-muted-foreground self-start" data-testid="button-back">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Journal
@@ -173,7 +227,9 @@ export default function JournalEdit() {
         </div>
       </div>
 
+      {/* Markdown editor + tag selector */}
       <div className="bg-card border rounded-lg overflow-hidden shadow-sm flex flex-col" style={{ minHeight: '60vh' }}>
+        {/* MDEditor: full-featured markdown editor */}
         <div data-color-mode="light" className="flex-1 flex flex-col [&>div]:flex-1">
           <MDEditor
             value={content}
@@ -186,6 +242,8 @@ export default function JournalEdit() {
             textareaProps={{ placeholder: "What's on your mind today?" }}
           />
         </div>
+
+        {/* Tag selection panel — anchored below the editor */}
         <div className="p-4 border-t bg-muted/30">
           <p className="text-sm font-medium text-muted-foreground mb-3">Tags</p>
           <div className="flex flex-wrap gap-2">
@@ -195,8 +253,10 @@ export default function JournalEdit() {
                 variant={tags.includes(tag as JournalTag) ? "default" : "outline"}
                 className={`cursor-pointer ${tags.includes(tag as JournalTag) ? TAG_COLORS[tag] : "bg-card"}`}
                 onClick={() => {
-                  setTags(prev => 
-                    prev.includes(tag as JournalTag) ? prev.filter(t => t !== tag) : [...prev, tag as JournalTag]
+                  setTags(prev =>
+                    prev.includes(tag as JournalTag)
+                      ? prev.filter(t => t !== tag)
+                      : [...prev, tag as JournalTag]
                   );
                   setSaveState("Unsaved changes");
                 }}
@@ -209,6 +269,11 @@ export default function JournalEdit() {
         </div>
       </div>
 
+      {/* ── Promote to Decision Log ───────────────────────────────────────────
+       * Toggle reveals a form to extract a formal decision from this entry.
+       * Once promoted, the entry gets a "Decision Logged" badge in the list.
+       * Disabled if the entry was already promoted.
+       */}
       <Card className="border-primary/20 bg-primary/5">
         <CardContent className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
@@ -218,14 +283,14 @@ export default function JournalEdit() {
               </h3>
               <p className="text-xs sm:text-sm text-muted-foreground">Extract a concrete decision from your entry.</p>
             </div>
-            <Switch 
-              checked={showPromote} 
+            <Switch
+              checked={showPromote}
               onCheckedChange={setShowPromote}
               disabled={entry?.isPromoted}
               data-testid="switch-promote"
             />
           </div>
-          
+
           {entry?.isPromoted ? (
             <div className="text-sm font-medium text-orange-300 bg-orange-500/15 border border-orange-500/30 p-3 rounded-md inline-block" data-testid="text-already-promoted">
               Already promoted to Decision Log.
@@ -234,17 +299,17 @@ export default function JournalEdit() {
             <div className="space-y-4 mt-6 animate-in fade-in slide-in-from-top-4">
               <div className="space-y-2">
                 <Label>Decision Title <span className="text-destructive">*</span></Label>
-                <Input 
-                  value={decisionForm.title} 
+                <Input
+                  value={decisionForm.title}
                   maxLength={120}
                   onChange={e => setDecisionForm({...decisionForm, title: e.target.value})}
-                  placeholder="e.g. Pivot GTM strategy to enterprise" 
+                  placeholder="e.g. Pivot GTM strategy to enterprise"
                   data-testid="input-decision-title"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Context Summary <span className="text-destructive">*</span></Label>
-                <Textarea 
+                <Textarea
                   value={decisionForm.contextSummary}
                   maxLength={500}
                   onChange={e => setDecisionForm({...decisionForm, contextSummary: e.target.value})}
@@ -256,22 +321,22 @@ export default function JournalEdit() {
               <div className="space-y-2">
                 <Label>Options Considered</Label>
                 {decisionForm.optionsConsidered.map((opt, i) => (
-                  <Input 
-                    key={i} 
+                  <Input
+                    key={i}
                     value={opt}
                     onChange={e => {
                       const newOpts = [...decisionForm.optionsConsidered];
                       newOpts[i] = e.target.value;
                       setDecisionForm({...decisionForm, optionsConsidered: newOpts});
                     }}
-                    placeholder={`Option ${i+1}`} 
+                    placeholder={`Option ${i+1}`}
                     className="mb-2"
                     data-testid={`input-decision-option-${i}`}
                   />
                 ))}
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   size="sm"
                   onClick={() => setDecisionForm({...decisionForm, optionsConsidered: [...decisionForm.optionsConsidered, ""]})}
                   data-testid="button-add-option"
@@ -281,14 +346,13 @@ export default function JournalEdit() {
               </div>
               <div className="space-y-2">
                 <Label>Chosen Option <span className="text-destructive">*</span></Label>
-                <Input 
+                <Input
                   value={decisionForm.chosenOption}
                   onChange={e => setDecisionForm({...decisionForm, chosenOption: e.target.value})}
-                  placeholder="What did you decide?" 
+                  placeholder="What did you decide?"
                   data-testid="input-decision-chosen"
                 />
               </div>
-              
               <Button onClick={handlePromoteDecision} className="w-full" data-testid="button-submit-decision">
                 Log Decision
               </Button>
