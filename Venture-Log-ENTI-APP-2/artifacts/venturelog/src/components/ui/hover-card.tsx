@@ -1,3 +1,13 @@
+/**
+ * components/ui/hover-card.tsx — Hover Card Component (shadcn/ui)
+ *
+ * A floating card that appears when hovering over a trigger element.
+ * Built on Radix UI's HoverCard primitive with smooth enter/exit animations.
+ * Useful for previewing user profiles, links, or additional context
+ * without requiring a click.
+ *
+ * Exports: HoverCard, HoverCardTrigger, HoverCardContent
+ */
 import * as React from "react"
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card"
 
