@@ -1,3 +1,24 @@
+/**
+ * pages/metrics/index.tsx — Metrics List Page
+ *
+ * Displays all active (non-archived) metrics as a grid of cards.
+ * Each card shows the metric's current value, percent change from
+ * the previous period, and an inline "log new value" input that
+ * appears on hover.
+ *
+ * Also provides an "Add Metric" dialog for creating new metrics.
+ * The dialog is disabled when the 8-metric limit is reached.
+ *
+ * Key UX feature — inline value logging:
+ *   Hovering over a metric card reveals an input field at the bottom.
+ *   The founder can type a number and press the send button to log
+ *   a new value without leaving this page or opening any dialog.
+ *   This friction-reduction is intentional — the easier it is to log,
+ *   the more consistent founders will be.
+ *
+ * Route: /metrics
+ */
+
 import { useState } from "react";
 import { useListMetrics, getListMetricsQueryKey, useCreateMetric, useLogMetricValue } from "@workspace/api-client-react";
 import { Link } from "wouter";
@@ -19,6 +40,7 @@ export default function MetricsList() {
   const createMetric = useCreateMetric();
   const logValue = useLogMetricValue();
 
+  // Form state for the "Add Metric" dialog
   const [newMetric, setNewMetric] = useState({
     name: "",
     class: MetricClass.revenue,
@@ -28,22 +50,31 @@ export default function MetricsList() {
     formulaDenominator: ""
   });
 
+  // Per-metric inline log state — tracks value input for each card
   const [inlineLogValue, setInlineLogValue] = useState<Record<string, string>>({});
   const [isLogging, setIsLogging] = useState<Record<string, boolean>>({});
 
+  // Check if the 8-metric limit has been reached
   const activeMetricsCount = metrics?.filter(m => !m.isArchived)?.length || 0;
   const isLimitReached = activeMetricsCount >= 8;
 
+  /** Create a new metric from the dialog form */
   const handleCreate = async () => {
     await createMetric.mutateAsync({ data: newMetric as any });
     queryClient.invalidateQueries({ queryKey: getListMetricsQueryKey() });
     setIsAddOpen(false);
   };
 
+  /**
+   * handleInlineLog()
+   * Logs a new value for a metric directly from the card hover panel.
+   * Uses today's date as the recorded date.
+   * Stops click propagation to prevent navigating to the detail page.
+   */
   const handleInlineLog = async (e: React.MouseEvent, metricId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const val = inlineLogValue[metricId];
     if (!val || isNaN(Number(val))) return;
 
@@ -65,23 +96,36 @@ export default function MetricsList() {
     }
   };
 
+  /**
+   * getChangeDisplay()
+   * Calculates and formats the percent change between current and previous values.
+   * Returns an icon, color class, and text string based on:
+   *   - The magnitude of change (percentage)
+   *   - The direction preference (higher_is_better vs lower_is_better)
+   *   - Green = favorable, Red = unfavorable, Gray = context dependent
+   */
   const getChangeDisplay = (metric: any) => {
-    if (metric.currentValue === undefined || metric.previousValue === undefined || metric.previousValue === null || metric.currentValue === null) return null;
+    if (metric.currentValue === undefined || metric.previousValue === undefined ||
+        metric.previousValue === null || metric.currentValue === null) return null;
+
     const diff = metric.currentValue - metric.previousValue;
     if (diff === 0) return { icon: Minus, color: "text-muted-foreground", text: "No change" };
 
-    const pct = metric.previousValue !== 0 ? ((Math.abs(diff) / metric.previousValue) * 100).toFixed(1) : "0.0";
+    const pct = metric.previousValue !== 0
+      ? ((Math.abs(diff) / metric.previousValue) * 100).toFixed(1)
+      : "0.0";
     const isUp = diff > 0;
-    
+
+    // Determine if the change is favorable based on metric direction
     let isFavorable = true;
     if (metric.direction === "higher_is_better") isFavorable = isUp;
     if (metric.direction === "lower_is_better") isFavorable = !isUp;
     if (metric.direction === "context_dependent") isFavorable = null as any;
 
-    const color = isFavorable === null 
-      ? "text-foreground bg-muted" 
-      : isFavorable 
-        ? "text-emerald-300 bg-emerald-500/15 border border-emerald-500/30" 
+    const color = isFavorable === null
+      ? "text-foreground bg-muted"
+      : isFavorable
+        ? "text-emerald-300 bg-emerald-500/15 border border-emerald-500/30"
         : "text-red-300 bg-red-500/15 border border-red-500/30";
 
     return {
@@ -98,10 +142,16 @@ export default function MetricsList() {
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Metrics</h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">What gets measured gets managed.</p>
         </div>
-        
+
+        {/* Add Metric dialog — disabled at 8-metric limit */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button disabled={isLimitReached} title={isLimitReached ? "Upgrade to Pro to add more metrics." : ""} className="w-full sm:w-auto" data-testid="button-add-metric">
+            <Button
+              disabled={isLimitReached}
+              title={isLimitReached ? "Upgrade to Pro to add more metrics." : ""}
+              className="w-full sm:w-auto"
+              data-testid="button-add-metric"
+            >
               <Plus className="w-4 h-4 mr-2" /> Add Metric
             </Button>
           </DialogTrigger>
@@ -115,6 +165,7 @@ export default function MetricsList() {
                 <Input value={newMetric.name} onChange={e => setNewMetric({...newMetric, name: e.target.value})} placeholder="e.g. Weekly Active Users" data-testid="input-metric-name" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Classification: what business area does this measure? */}
                 <div className="space-y-2">
                   <Label>Classification</Label>
                   <Select value={newMetric.class} onValueChange={(v) => setNewMetric({...newMetric, class: v as MetricClass})}>
@@ -127,6 +178,7 @@ export default function MetricsList() {
                     </SelectContent>
                   </Select>
                 </div>
+                {/* Period: how often will this be logged? */}
                 <div className="space-y-2">
                   <Label>Tracking Period</Label>
                   <Select value={newMetric.period} onValueChange={(v) => setNewMetric({...newMetric, period: v as MetricPeriod})}>
@@ -139,6 +191,7 @@ export default function MetricsList() {
                   </Select>
                 </div>
               </div>
+              {/* Direction: drives whether up/down is shown as green or red */}
               <div className="space-y-2">
                 <Label>Direction</Label>
                 <Select value={newMetric.direction} onValueChange={(v) => setNewMetric({...newMetric, direction: v as MetricDirection})}>
@@ -150,6 +203,7 @@ export default function MetricsList() {
                   </SelectContent>
                 </Select>
               </div>
+              {/* Optional formula fields — shown only for relevant metric types */}
               {(newMetric.class === "retention" || newMetric.class === "unit_economics") && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -168,11 +222,13 @@ export default function MetricsList() {
         </Dialog>
       </header>
 
+      {/* Metric cards grid */}
       {isLoading ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-40 w-full" />)}
         </div>
       ) : metrics?.filter(m => !m.isArchived).length === 0 ? (
+        // Empty state
         <Card className="border-dashed shadow-none bg-transparent">
           <CardContent className="p-8 sm:p-12 text-center text-muted-foreground flex flex-col items-center">
             <TrendingUp className="w-12 h-12 mb-4 text-muted" />
@@ -186,18 +242,21 @@ export default function MetricsList() {
             const change = getChangeDisplay(metric);
             return (
               <Link key={metric.id} href={`/metrics/${metric.id}`}>
+                {/* Card with hover-reveal inline log panel */}
                 <Card className="cursor-pointer hover:border-primary/40 transition-colors group h-full relative overflow-hidden flex flex-col" data-testid={`card-metric-${metric.id}`}>
                   <CardContent className="p-4 sm:p-6 flex flex-col h-full relative z-10 bg-card">
                     <div className="flex justify-between items-start mb-4">
                       <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider line-clamp-1">{metric.name}</p>
                       <span className="text-xs bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">{metric.period}</span>
                     </div>
-                    
+
                     <div className="mt-auto">
+                      {/* Current value in monospace — easy to read at a glance */}
                       <div className="text-3xl sm:text-4xl font-mono font-bold mb-2">
                         {metric.currentValue !== undefined && metric.currentValue !== null ? metric.currentValue : '—'}
                       </div>
-                      
+
+                      {/* Change indicator — colored based on direction preference */}
                       <div className="flex items-center justify-between">
                         {change ? (
                           <div className={`inline-flex items-center gap-1 text-xs sm:text-sm px-2 py-1 rounded-md font-medium ${change.color}`}>
@@ -210,11 +269,13 @@ export default function MetricsList() {
                       </div>
                     </div>
                   </CardContent>
-                  
-                  {/* Inline log value on hover */}
-                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 bg-muted/90 backdrop-blur-sm border-t translate-y-full group-hover:translate-y-0 transition-transform z-20 flex gap-2 items-center"
-                       onClick={e => e.preventDefault()}>
-                    <Input 
+
+                  {/* Inline log value panel — slides up from bottom on hover */}
+                  <div
+                    className="absolute inset-x-0 bottom-0 p-3 sm:p-4 bg-muted/90 backdrop-blur-sm border-t translate-y-full group-hover:translate-y-0 transition-transform z-20 flex gap-2 items-center"
+                    onClick={e => e.preventDefault()}
+                  >
+                    <Input
                       type="number"
                       placeholder="Log new value"
                       className="h-8 text-sm"
@@ -223,9 +284,9 @@ export default function MetricsList() {
                       onClick={e => e.stopPropagation()}
                       data-testid={`input-inline-log-${metric.id}`}
                     />
-                    <Button 
-                      size="sm" 
-                      className="h-8 w-8 p-0 shrink-0" 
+                    <Button
+                      size="sm"
+                      className="h-8 w-8 p-0 shrink-0"
                       disabled={isLogging[metric.id] || !inlineLogValue[metric.id]}
                       onClick={e => handleInlineLog(e, metric.id)}
                       data-testid={`button-inline-log-${metric.id}`}
@@ -235,7 +296,7 @@ export default function MetricsList() {
                   </div>
                 </Card>
               </Link>
-            )
+            );
           })}
         </div>
       )}
