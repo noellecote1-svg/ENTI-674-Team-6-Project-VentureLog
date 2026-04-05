@@ -1,3 +1,17 @@
+/**
+ * components/ui/badge.tsx — Badge Component (shadcn/ui + VentureLog customizations)
+ *
+ * Small inline labels used throughout VentureLog for tags, status indicators,
+ * and category labels. Customized from the base shadcn/ui component with:
+ *   - hover-elevate class for subtle interactive lift effect
+ *   - shadow-xs instead of shadow for a lighter appearance
+ *   - Custom badge-outline CSS variable for outline variant borders
+ *   - whitespace-nowrap to prevent badge text from wrapping
+ *
+ * Variants: default (primary color), secondary, destructive, outline
+ *
+ * Exports: Badge, badgeVariants
+ */
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
