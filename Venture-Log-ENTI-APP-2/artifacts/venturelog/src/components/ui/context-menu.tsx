@@ -1,3 +1,16 @@
+/**
+ * components/ui/context-menu.tsx — Context Menu Component (shadcn/ui)
+ *
+ * A right-click triggered menu built on Radix UI's ContextMenu primitive.
+ * Supports nested submenus, checkbox items, radio groups, and keyboard shortcuts.
+ * Not currently used in VentureLog but available for future right-click actions.
+ *
+ * Exports: ContextMenu, ContextMenuTrigger, ContextMenuContent,
+ *          ContextMenuItem, ContextMenuCheckboxItem, ContextMenuRadioItem,
+ *          ContextMenuLabel, ContextMenuSeparator, ContextMenuShortcut,
+ *          ContextMenuGroup, ContextMenuPortal, ContextMenuSub,
+ *          ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuRadioGroup
+ */
 import * as React from "react"
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
