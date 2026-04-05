@@ -1,3 +1,12 @@
+/**
+ * components/ui/radio-group.tsx — Radio Group Component (shadcn/ui)
+ *
+ * A group of mutually exclusive radio button options.
+ * Built on Radix UI's RadioGroup primitive for full accessibility.
+ * Uses the primary (cyan) color for the selected state indicator.
+ *
+ * Exports: RadioGroup, RadioGroupItem
+ */
 import * as React from "react"
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { Circle } from "lucide-react"
