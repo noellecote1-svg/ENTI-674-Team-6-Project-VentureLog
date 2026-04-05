@@ -1,3 +1,17 @@
+/**
+ * components/ui/toast.tsx — Toast Primitives (shadcn/ui)
+ *
+ * The low-level building blocks for toast notifications.
+ * Used by the Toaster component and the useToast hook to render
+ * brief non-blocking feedback messages in the corner of the screen.
+ * Supports swipe-to-dismiss gesture on mobile.
+ *
+ * Variants: default and destructive (red, for errors)
+ *
+ * Exports: ToastProvider, ToastViewport, Toast, ToastTitle,
+ *          ToastDescription, ToastClose, ToastAction,
+ *          ToastProps, ToastActionElement
+ */
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
