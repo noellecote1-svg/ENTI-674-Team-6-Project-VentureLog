@@ -1,3 +1,14 @@
+/**
+ * components/ui/drawer.tsx — Drawer Component (shadcn/ui)
+ *
+ * A panel that slides up from the bottom of the screen on mobile.
+ * Built on the Vaul library for smooth gesture-based interactions.
+ * Scales the background content slightly when open for depth effect.
+ * Used as a mobile-friendly alternative to dialogs for forms and menus.
+ *
+ * Exports: Drawer, DrawerPortal, DrawerOverlay, DrawerTrigger, DrawerClose,
+ *          DrawerContent, DrawerHeader, DrawerFooter, DrawerTitle, DrawerDescription
+ */
 import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
