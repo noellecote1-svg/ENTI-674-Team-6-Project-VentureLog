@@ -1,3 +1,16 @@
+/**
+ * components/ui/dropdown-menu.tsx — Dropdown Menu Component (shadcn/ui)
+ *
+ * A triggered dropdown menu built on Radix UI's DropdownMenu primitive.
+ * Supports nested submenus, checkbox items, radio groups, and keyboard shortcuts.
+ * Used for action menus on items (e.g. archive, delete options).
+ *
+ * Exports: DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
+ *          DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioItem,
+ *          DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut,
+ *          DropdownMenuGroup, DropdownMenuPortal, DropdownMenuSub,
+ *          DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuRadioGroup
+ */
 "use client"
 
 import * as React from "react"
