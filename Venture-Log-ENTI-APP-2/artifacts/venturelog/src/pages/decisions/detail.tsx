@@ -1,6 +1,30 @@
+/**
+ * pages/decisions/detail.tsx — Decision Detail Page
+ *
+ * Shows all information about a single decision and allows the founder
+ * to update it as the situation evolves over time.
+ *
+ * Sections:
+ *   1. Decision header — title, status badge, tags, date
+ *   2. Context card — context summary, options considered, chosen option,
+ *      expected outcome, and (when closed) actual outcome + lessons learned
+ *   3. Linked Metric — link/unlink a metric to this decision
+ *   4. Discussion — threaded comments for follow-up notes
+ *
+ * Actions available:
+ *   - Close Decision: records the actual outcome and lessons learned,
+ *     and marks the decision as "closed"
+ *   - Archive: soft-deletes the decision (removes from active views)
+ *   - Delete: permanently deletes (only available if no comments exist,
+ *     to prevent accidental loss of discussion)
+ *   - Link Metric: connect a metric to this decision for cross-referencing
+ *
+ * Route: /decisions/:id
+ */
+
 import { useState } from "react";
 import { useParams, Link, useLocation } from "wouter";
-import { 
+import {
   useGetDecision, getGetDecisionQueryKey,
   useUpdateDecision, useAddDecisionComment,
   useDeleteDecision,
@@ -23,13 +47,19 @@ export default function DecisionDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  const { data, isLoading } = useGetDecision(id, { query: { enabled: !!id, queryKey: getGetDecisionQueryKey(id) } });
-  
+
+  // Fetch decision with its comments
+  const { data, isLoading } = useGetDecision(id, {
+    query: { enabled: !!id, queryKey: getGetDecisionQueryKey(id) }
+  });
+
+  // API mutation hooks
   const updateDecision = useUpdateDecision();
   const deleteDecision = useDeleteDecision();
   const addComment = useAddDecisionComment();
   const { data: metrics } = useListMetrics({ query: { queryKey: getListMetricsQueryKey() } });
 
+  // ── UI State ───────────────────────────────────────────────────────────────
   const [newComment, setNewComment] = useState("");
   const [isCloseOpen, setIsCloseOpen] = useState(false);
   const [closeForm, setCloseForm] = useState({ actualOutcome: "", lessonsLearned: "" });
@@ -38,12 +68,16 @@ export default function DecisionDetail() {
   if (isLoading) {
     return <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>;
   }
-
   if (!data) return <div className="p-8 text-center text-muted-foreground">Decision not found</div>;
 
   const decision = data.decision;
   const comments = data.comments;
 
+  /**
+   * handleArchive()
+   * Soft-deletes the decision by setting isArchived: true.
+   * Archived decisions are hidden from the list by default but not deleted.
+   */
   const handleArchive = async () => {
     if (confirm("Archive this decision?")) {
       await updateDecision.mutateAsync({ id, data: { isArchived: true } });
@@ -53,6 +87,12 @@ export default function DecisionDetail() {
     }
   };
 
+  /**
+   * handleDelete()
+   * Permanently deletes the decision.
+   * Only available when there are no comments — prevents accidental loss
+   * of discussion history.
+   */
   const handleDelete = async () => {
     if (confirm("Delete this decision forever?")) {
       await deleteDecision.mutateAsync({ id });
@@ -61,20 +101,30 @@ export default function DecisionDetail() {
     }
   };
 
+  /**
+   * handleClose()
+   * Marks the decision as closed with an actual outcome recorded.
+   * Requires actualOutcome — lessons learned is optional.
+   */
   const handleClose = async () => {
     if (!closeForm.actualOutcome) return;
-    await updateDecision.mutateAsync({ 
-      id, 
-      data: { 
-        status: DecisionStatus.closed, 
-        actualOutcome: closeForm.actualOutcome, 
-        lessonsLearned: closeForm.lessonsLearned 
-      } 
+    await updateDecision.mutateAsync({
+      id,
+      data: {
+        status: DecisionStatus.closed,
+        actualOutcome: closeForm.actualOutcome,
+        lessonsLearned: closeForm.lessonsLearned
+      }
     });
     queryClient.invalidateQueries({ queryKey: getGetDecisionQueryKey(id) });
     setIsCloseOpen(false);
   };
 
+  /**
+   * handleComment()
+   * Adds a new comment to the decision.
+   * Uses "Founder" as the author name — auth is not yet implemented.
+   */
   const handleComment = async () => {
     if (!newComment.trim()) return;
     await addComment.mutateAsync({
@@ -85,6 +135,13 @@ export default function DecisionDetail() {
     queryClient.invalidateQueries({ queryKey: getGetDecisionQueryKey(id) });
   };
 
+  /**
+   * handleLinkMetric()
+   * Links or unlinks a metric to this decision.
+   * "none" value clears the linked metric.
+   * Cross-linking decisions and metrics lets founders see which numbers
+   * were driving their strategic choices.
+   */
   const handleLinkMetric = async (metricId: string) => {
     setIsLinkingMetric(true);
     try {
@@ -101,11 +158,13 @@ export default function DecisionDetail() {
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl mx-auto space-y-6 sm:space-y-8 pb-32">
+      {/* Header: back button + action buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <Button variant="ghost" className="pl-0 text-muted-foreground self-start" asChild data-testid="button-back">
           <Link href="/decisions"><ArrowLeft className="w-4 h-4 mr-2" /> Back to Log</Link>
         </Button>
         <div className="flex flex-wrap items-center gap-2">
+          {/* Delete only available when no comments exist */}
           {!decision.hasComments && (
             <Button variant="ghost" size="sm" onClick={handleDelete} className="text-destructive hover:text-destructive hover:bg-destructive/10" data-testid="button-delete-decision">
               <Trash2 className="w-4 h-4 mr-2" /> Delete
@@ -114,6 +173,7 @@ export default function DecisionDetail() {
           <Button variant="outline" size="sm" onClick={handleArchive} data-testid="button-archive-decision">
             <Archive className="w-4 h-4 mr-2" /> Archive
           </Button>
+          {/* Close Decision dialog — only shown for open decisions */}
           {decision.status === 'open' && (
             <Dialog open={isCloseOpen} onOpenChange={setIsCloseOpen}>
               <DialogTrigger asChild>
@@ -128,18 +188,18 @@ export default function DecisionDetail() {
                 <div className="space-y-4 mt-4">
                   <div className="space-y-2">
                     <Label>Actual Outcome <span className="text-destructive">*</span></Label>
-                    <Textarea 
-                      value={closeForm.actualOutcome} 
-                      onChange={e => setCloseForm({...closeForm, actualOutcome: e.target.value})} 
+                    <Textarea
+                      value={closeForm.actualOutcome}
+                      onChange={e => setCloseForm({...closeForm, actualOutcome: e.target.value})}
                       placeholder="What actually happened?"
                       data-testid="input-actual-outcome"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Lessons Learned</Label>
-                    <Textarea 
-                      value={closeForm.lessonsLearned} 
-                      onChange={e => setCloseForm({...closeForm, lessonsLearned: e.target.value})} 
+                    <Textarea
+                      value={closeForm.lessonsLearned}
+                      onChange={e => setCloseForm({...closeForm, lessonsLearned: e.target.value})}
                       placeholder="What did you learn from this?"
                     />
                   </div>
@@ -154,11 +214,14 @@ export default function DecisionDetail() {
       </div>
 
       <div className="space-y-6">
+        {/* Decision title, status, tags */}
         <div>
           <div className="flex items-center gap-3 mb-4">
-            <Badge variant={decision.status === 'open' ? 'default' : 'secondary'} 
+            <Badge
+              variant={decision.status === 'open' ? 'default' : 'secondary'}
               className={decision.status === 'open' ? 'bg-orange-500/15 text-orange-300 border-orange-500/30 hover:bg-orange-500/20 shadow-none' : 'shadow-none'}
-              data-testid="badge-status">
+              data-testid="badge-status"
+            >
               {decision.status.toUpperCase()}
             </Badge>
             <span className="text-sm text-muted-foreground">{new Date(decision.createdAt).toLocaleDateString()}</span>
@@ -172,13 +235,16 @@ export default function DecisionDetail() {
           </div>
         </div>
 
+        {/* Main decision details card */}
         <Card className="shadow-sm">
           <CardContent className="p-4 sm:p-6 space-y-6">
+            {/* Context — why was this decision needed? */}
             <div>
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Context</h3>
               <p className="text-foreground leading-relaxed" data-testid="text-context">{decision.contextSummary}</p>
             </div>
-            
+
+            {/* Options and chosen option side by side */}
             <div className="grid md:grid-cols-2 gap-6 pt-4 border-t">
               <div>
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Options Considered</h3>
@@ -194,6 +260,7 @@ export default function DecisionDetail() {
               </div>
             </div>
 
+            {/* Expected outcome */}
             {decision.expectedOutcome && (
               <div className="pt-4 border-t">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Expected Outcome</h3>
@@ -201,6 +268,7 @@ export default function DecisionDetail() {
               </div>
             )}
 
+            {/* Retrospective section — only shown when decision is closed */}
             {decision.status === 'closed' && (
               <div className="pt-4 border-t bg-muted/30 -mx-4 -mb-4 p-4 sm:-mx-6 sm:-mb-6 sm:p-6 space-y-4">
                 <div>
@@ -252,12 +320,12 @@ export default function DecisionDetail() {
           </CardContent>
         </Card>
 
-        {/* Comments Section */}
+        {/* Discussion & Comments */}
         <div className="space-y-4 pt-8">
           <h3 className="text-xl font-bold flex items-center gap-2">
             <MessageSquare className="w-5 h-5" /> Discussion & Notes
           </h3>
-          
+
           <div className="space-y-4">
             {comments.map((comment, index) => (
               <Card key={comment.id} className="shadow-sm" data-testid={`card-comment-${index}`}>
@@ -270,7 +338,7 @@ export default function DecisionDetail() {
                 </CardContent>
               </Card>
             ))}
-            
+
             {comments.length === 0 && (
               <div className="text-center p-8 border border-dashed rounded-lg text-muted-foreground bg-card shadow-sm">
                 No comments or follow-up notes yet.
@@ -278,9 +346,10 @@ export default function DecisionDetail() {
             )}
           </div>
 
+          {/* Add comment input */}
           <div className="flex flex-col sm:flex-row items-start gap-3 mt-4">
-            <Textarea 
-              placeholder="Add a follow-up note..." 
+            <Textarea
+              placeholder="Add a follow-up note..."
               value={newComment}
               onChange={e => setNewComment(e.target.value)}
               className="min-h-[80px] w-full"
