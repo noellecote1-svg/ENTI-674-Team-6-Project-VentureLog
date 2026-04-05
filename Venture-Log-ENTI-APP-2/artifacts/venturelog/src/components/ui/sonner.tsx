@@ -1,3 +1,14 @@
+/**
+ * components/ui/sonner.tsx — Sonner Toast Component (shadcn/ui)
+ *
+ * An alternative toast notification system using the Sonner library.
+ * Automatically inherits the current theme (light/dark/system).
+ * Styled to match VentureLog's background, border, and text colors.
+ * Note: VentureLog primarily uses the custom use-toast/Toaster system.
+ * This provides an alternative if Sonner's toast API is preferred.
+ *
+ * Exports: Toaster
+ */
 "use client"
 
 import { useTheme } from "next-themes"
