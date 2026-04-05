@@ -1,3 +1,20 @@
+/**
+ * components/ui/select.tsx — Select Component (shadcn/ui)
+ *
+ * A styled dropdown select menu used extensively throughout VentureLog for:
+ *   - Metric classification (revenue, retention, engagement, unit_economics)
+ *   - Metric tracking period (daily, weekly, monthly)
+ *   - Metric direction (higher_is_better, lower_is_better, context_dependent)
+ *   - Decision status filter (open, closed, all)
+ *   - Tag filter dropdowns
+ *   - Investor update period selector
+ *
+ * Built on Radix UI's Select primitive with scroll buttons for long lists.
+ *
+ * Exports: Select, SelectGroup, SelectValue, SelectTrigger, SelectContent,
+ *          SelectLabel, SelectItem, SelectSeparator,
+ *          SelectScrollUpButton, SelectScrollDownButton
+ */
 "use client"
 
 import * as React from "react"
