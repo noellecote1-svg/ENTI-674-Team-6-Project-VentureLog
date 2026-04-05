@@ -1,3 +1,13 @@
+/**
+ * components/ui/input-otp.tsx — OTP Input Component (shadcn/ui)
+ *
+ * A one-time password input with individual character slots.
+ * Built on the input-otp library. Each digit is displayed in
+ * its own bordered slot with a blinking caret when active.
+ * Available for future authentication or verification flows.
+ *
+ * Exports: InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator
+ */
 import * as React from "react"
 import { OTPInput, OTPInputContext } from "input-otp"
 import { Minus } from "lucide-react"
