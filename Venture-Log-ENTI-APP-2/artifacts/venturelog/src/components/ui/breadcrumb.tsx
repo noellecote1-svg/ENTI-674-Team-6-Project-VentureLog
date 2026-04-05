@@ -1,3 +1,13 @@
+/**
+ * components/ui/breadcrumb.tsx — Breadcrumb Component (shadcn/ui)
+ *
+ * Navigation trail showing the user's current location in the app hierarchy.
+ * Supports custom separators, ellipsis for long paths, and asChild rendering.
+ * Fully accessible with proper aria-label and aria-current attributes.
+ *
+ * Exports: Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink,
+ *          BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis
+ */
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
