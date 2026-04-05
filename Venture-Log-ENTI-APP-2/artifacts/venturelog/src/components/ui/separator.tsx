@@ -1,3 +1,12 @@
+/**
+ * components/ui/separator.tsx — Separator Component (shadcn/ui)
+ *
+ * A thin horizontal or vertical dividing line.
+ * Built on Radix UI's Separator primitive for proper accessibility semantics.
+ * Used throughout VentureLog to visually separate sections within cards.
+ *
+ * Exports: Separator
+ */
 import * as React from "react"
 import * as SeparatorPrimitive from "@radix-ui/react-separator"
 
