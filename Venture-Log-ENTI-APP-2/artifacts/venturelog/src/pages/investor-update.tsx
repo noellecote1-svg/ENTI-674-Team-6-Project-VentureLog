@@ -1,3 +1,19 @@
+/**
+ * pages/investor-update.tsx — AI Investor Update Generator Page
+ *
+ * Allows founders to generate a professional investor update email
+ * with one click, using their VentureLog data (metrics, decisions, journal).
+ *
+ * The page has two states:
+ *   1. Pre-generation: configuration form + "What gets included" explainer
+ *   2. Post-generation: rendered update + copy-to-clipboard button
+ *
+ * The generated update follows the YC founder format:
+ *   TL;DR → Metrics → Highlights → Lowlights → Decisions → Focus → Ask
+ *
+ * Route: /investor-update
+ */
+
 import { useState } from "react";
 import { TrendingUp, Loader2, Copy, Check, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +30,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, subMonths } from "date-fns";
 
+/**
+ * getPeriodOptions()
+ * Generates the last 12 months as dropdown options.
+ * Defaults to the previous month (most common use case).
+ * Format: { label: "March 2024", value: "2024-03" }
+ */
 function getPeriodOptions() {
   const options: { label: string; value: string }[] = [];
   const now = new Date();
@@ -27,6 +49,19 @@ function getPeriodOptions() {
   return options;
 }
 
+/**
+ * renderMarkdownLike()
+ * A lightweight markdown renderer for the generated update.
+ * Handles the specific markdown patterns the AI produces:
+ *   ## Header    → <h2>
+ *   **Bold**     → <p className="font-semibold">
+ *   - List item  → <li>
+ *   (empty line) → spacer div
+ *   Regular text → <p>
+ *
+ * We use a custom renderer rather than a library to avoid
+ * overhead of a full markdown parser for this specific use case.
+ */
 function renderMarkdownLike(text: string) {
   const lines = text.split("\n");
   const elements: React.ReactNode[] = [];
@@ -36,26 +71,31 @@ function renderMarkdownLike(text: string) {
     const line = lines[i];
 
     if (line.startsWith("## ")) {
+      // Section header
       elements.push(
         <h2 key={i} className="text-xl font-bold mt-6 mb-2 text-foreground">
           {line.slice(3)}
         </h2>
       );
     } else if (line.startsWith("**") && line.endsWith("**") && line.length > 4) {
+      // Section label (e.g. "**Metrics**")
       elements.push(
         <p key={i} className="font-semibold text-foreground mt-4 mb-1">
           {line.slice(2, -2)}
         </p>
       );
     } else if (line.startsWith("- ")) {
+      // Bullet point
       elements.push(
         <li key={i} className="ml-4 text-foreground/90 text-sm leading-relaxed list-disc">
           {line.slice(2)}
         </li>
       );
     } else if (line.trim() === "") {
+      // Empty line spacer
       elements.push(<div key={i} className="h-1" />);
     } else {
+      // Regular paragraph
       elements.push(
         <p key={i} className="text-foreground/90 text-sm leading-relaxed">
           {line}
@@ -70,17 +110,26 @@ function renderMarkdownLike(text: string) {
 
 export default function InvestorUpdate() {
   const periodOptions = getPeriodOptions();
+  // Default to previous month — founders typically write last month's update
   const defaultPeriod = periodOptions[1]?.value ?? periodOptions[0]?.value ?? "";
 
+  // ── Form State ─────────────────────────────────────────────────────────────
   const [period, setPeriod] = useState(defaultPeriod);
   const [companyName, setCompanyName] = useState("");
   const [founderName, setFounderName] = useState("");
   const [additionalContext, setAdditionalContext] = useState("");
+
+  // ── UI State ───────────────────────────────────────────────────────────────
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedText, setGeneratedText] = useState("");
   const [copied, setCopied] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
 
+  /**
+   * handleGenerate()
+   * Calls the backend API to generate the investor update.
+   * Shows a loading state while waiting, then displays the result.
+   */
   async function handleGenerate() {
     if (!period || isGenerating) return;
 
@@ -114,6 +163,11 @@ export default function InvestorUpdate() {
     }
   }
 
+  /**
+   * handleCopy()
+   * Copies the generated update text to the clipboard.
+   * Shows a checkmark for 2 seconds to confirm the copy succeeded.
+   */
   async function handleCopy() {
     await navigator.clipboard.writeText(generatedText);
     setCopied(true);
@@ -124,6 +178,7 @@ export default function InvestorUpdate() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-8">
+      {/* Page header */}
       <header className="mb-8">
         <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
           <TrendingUp className="w-8 h-8" />
@@ -134,13 +189,14 @@ export default function InvestorUpdate() {
         </p>
       </header>
 
-      {/* Config form */}
+      {/* ── Configuration Form ─────────────────────────────────────────────── */}
       <Card className="border-border/40">
         <CardHeader>
           <CardTitle className="text-lg">Configure Update</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid sm:grid-cols-2 gap-5">
+            {/* Month selector — required, drives the date range for data fetching */}
             <div className="space-y-2">
               <Label>Period</Label>
               <Select value={period} onValueChange={setPeriod}>
@@ -178,6 +234,7 @@ export default function InvestorUpdate() {
             </div>
           </div>
 
+          {/* Free-text field for anything not captured in structured data */}
           <div className="space-y-2">
             <Label>Additional Context <span className="text-muted-foreground font-normal">(optional)</span></Label>
             <Textarea
@@ -189,60 +246,42 @@ export default function InvestorUpdate() {
             />
           </div>
 
+          {/* Generate button — changes to "Regenerate" after first generation */}
           <Button
             onClick={handleGenerate}
             disabled={!period || isGenerating}
             className="neon-glow w-full sm:w-auto"
           >
             {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating…
-              </>
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating…</>
             ) : hasGenerated ? (
-              <>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Regenerate Update
-              </>
+              <><RefreshCw className="w-4 h-4 mr-2" />Regenerate Update</>
             ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate Update
-              </>
+              <><Sparkles className="w-4 h-4 mr-2" />Generate Update</>
             )}
           </Button>
         </CardContent>
       </Card>
 
-      {/* Output area */}
+      {/* ── Generated Output ─────────────────────────────────────────────────
+       * Only shown after the first generation attempt.
+       */}
       {hasGenerated && (
         <Card className="border-border/40">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">
               {selectedPeriodLabel} Update
               {isGenerating && (
-                <span className="ml-2 text-sm font-normal text-muted-foreground">
-                  Generating…
-                </span>
+                <span className="ml-2 text-sm font-normal text-muted-foreground">Generating…</span>
               )}
             </CardTitle>
+            {/* Copy button — only shown once content exists */}
             {generatedText && !isGenerating && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopy}
-                className="border-border/40 gap-2"
-              >
+              <Button variant="outline" size="sm" onClick={handleCopy} className="border-border/40 gap-2">
                 {copied ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    Copied
-                  </>
+                  <><Check className="w-3.5 h-3.5 text-emerald-400" />Copied</>
                 ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    Copy
-                  </>
+                  <><Copy className="w-3.5 h-3.5" />Copy</>
                 )}
               </Button>
             )}
@@ -265,7 +304,9 @@ export default function InvestorUpdate() {
         </Card>
       )}
 
-      {/* How it works */}
+      {/* ── How It Works Explainer ────────────────────────────────────────────
+       * Only shown before the first generation — educates new users.
+       */}
       {!hasGenerated && (
         <div className="mt-4 space-y-4">
           <h3 className="text-lg font-semibold">What gets included</h3>
