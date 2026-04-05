@@ -1,3 +1,14 @@
+/**
+ * components/ui/input-group.tsx — Input Group Component (shadcn/ui)
+ *
+ * Combines an input with prefix/suffix addons (icons, buttons, text)
+ * into a single visually connected unit. Handles focus states, error states,
+ * and disabled states across the entire group.
+ * Used for search inputs with icons, inputs with action buttons, etc.
+ *
+ * Exports: InputGroup, InputGroupAddon, InputGroupButton,
+ *          InputGroupText, InputGroupInput, InputGroupTextarea
+ */
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
