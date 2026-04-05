@@ -1,3 +1,14 @@
+/**
+ * components/ui/table.tsx — Table Component (shadcn/ui)
+ *
+ * Semantic HTML table components with consistent styling.
+ * Used in VentureLog's Decision Log list page for the filterable
+ * decisions table, and in the Metric Detail page for the value log.
+ * Includes hover states on rows and a responsive overflow container.
+ *
+ * Exports: Table, TableHeader, TableBody, TableFooter,
+ *          TableHead, TableRow, TableCell, TableCaption
+ */
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
