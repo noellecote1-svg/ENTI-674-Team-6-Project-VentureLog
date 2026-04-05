@@ -1,3 +1,14 @@
+/**
+ * components/ui/item.tsx — Item Component (shadcn/ui)
+ *
+ * A structured list item layout with support for media (icons/images),
+ * title, description, actions, header, and footer sections.
+ * Supports default, outline, and muted visual variants.
+ * Available for building rich list UIs with consistent structure.
+ *
+ * Exports: Item, ItemMedia, ItemContent, ItemActions, ItemGroup,
+ *          ItemSeparator, ItemTitle, ItemDescription, ItemHeader, ItemFooter
+ */
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
