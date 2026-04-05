@@ -1,3 +1,16 @@
+/**
+ * components/ui/navigation-menu.tsx — Navigation Menu Component (shadcn/ui)
+ *
+ * A horizontal navigation menu with animated dropdown panels.
+ * Built on Radix UI's NavigationMenu primitive.
+ * Not currently used in VentureLog (which uses a sidebar for navigation)
+ * but available for future top-bar navigation needs.
+ *
+ * Exports: NavigationMenu, NavigationMenuList, NavigationMenuItem,
+ *          NavigationMenuContent, NavigationMenuTrigger, NavigationMenuLink,
+ *          NavigationMenuIndicator, NavigationMenuViewport,
+ *          navigationMenuTriggerStyle
+ */
 import * as React from "react"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"
