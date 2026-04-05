@@ -1,3 +1,16 @@
+/**
+ * components/ui/menubar.tsx — Menubar Component (shadcn/ui)
+ *
+ * A horizontal menu bar with dropdown menus — similar to application
+ * menu bars (File, Edit, View, etc.). Built on Radix UI's Menubar primitive.
+ * Not currently used in VentureLog but available for future toolbar needs.
+ *
+ * Exports: Menubar, MenubarMenu, MenubarTrigger, MenubarContent,
+ *          MenubarItem, MenubarSeparator, MenubarLabel, MenubarCheckboxItem,
+ *          MenubarRadioGroup, MenubarRadioItem, MenubarPortal,
+ *          MenubarSubContent, MenubarSubTrigger, MenubarGroup,
+ *          MenubarSub, MenubarShortcut
+ */
 import * as React from "react"
 import * as MenubarPrimitive from "@radix-ui/react-menubar"
 import { Check, ChevronRight, Circle } from "lucide-react"
