@@ -1,3 +1,20 @@
+/**
+ * integrations/openai_ai_integrations/server/audio/client.ts — Audio Client
+ *
+ * Server-side audio processing and AI voice capabilities using OpenAI.
+ * Handles the full audio pipeline from format detection through to
+ * AI-powered voice interactions.
+ *
+ *   detectAudioFormat()      — identifies WAV/MP3/WebM/MP4/OGG from magic bytes
+ *   convertToWav()           — converts any format to WAV using ffmpeg
+ *   ensureCompatibleFormat() — auto-detects and converts to OpenAI-compatible format
+ *   voiceChat()              — audio-in, audio-out conversation (gpt-audio)
+ *   voiceChatStream()        — streaming voice conversation
+ *   textToSpeech()           — convert text to spoken audio
+ *   textToSpeechStream()     — streaming text-to-speech
+ *   speechToText()           — transcribe audio to text (gpt-4o-mini-transcribe)
+ *   speechToTextStream()     — streaming transcription
+*/
 import OpenAI, { toFile } from "openai";
 import { Buffer } from "node:buffer";
 import { spawn } from "child_process";
