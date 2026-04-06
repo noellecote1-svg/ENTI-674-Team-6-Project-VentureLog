@@ -120,10 +120,10 @@ To run this project locally:
 ## Screenshots
 
 ### Dashboard
-!<img width="1437" height="810" alt="Screenshot 2026-04-05 at 9 59 09 PM" src="https://github.com/user-attachments/assets/da095e26-209b-4805-8da9-f267b381148a" />
+<img width="1437" height="810" alt="Screenshot 2026-04-05 at 9 59 09 PM" src="https://github.com/user-attachments/assets/da095e26-209b-4805-8da9-f267b381148a" />
 
 ### Decision Log
-!<img width="1432" height="792" alt="Screenshot 2026-04-05 at 10 03 38 PM" src="https://github.com/user-attachments/assets/1f4f56bd-124c-42e6-b59b-210b8ddf6dd0" />
+<img width="1432" height="792" alt="Screenshot 2026-04-05 at 10 03 38 PM" src="https://github.com/user-attachments/assets/1f4f56bd-124c-42e6-b59b-210b8ddf6dd0" />
 
 ---
 
