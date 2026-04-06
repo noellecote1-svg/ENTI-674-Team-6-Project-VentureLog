@@ -1,3 +1,32 @@
+/**
+ * hooks/useVoiceStream.ts — Voice Streaming Hook
+ *
+ * A React hook that manages the full voice interaction cycle:
+ * sending a recorded audio blob to the server and receiving a
+ * streaming AI voice response via Server-Sent Events (SSE).
+ *
+ * Flow:
+ *   1. Converts the recorded audio Blob to base64
+ *   2. POSTs it to the given URL with Accept: text/event-stream
+ *   3. Reads the SSE response stream chunk by chunk
+ *   4. Parses SSE events and handles each type:
+ *        user_transcript → what the founder said (speech-to-text)
+ *        transcript      → what the AI is saying (text)
+ *        audio           → PCM16 audio chunk (pushed to playback)
+ *        error           → server-side error message
+ *        done            → stream complete signal
+ *   5. Audio chunks are passed to useAudioPlayback for real-time playback
+ *
+ * Cancellation: if a new request starts before the previous one finishes,
+ * the previous request is automatically aborted via AbortController.
+ * AbortErrors are silently swallowed — only real errors trigger onError.
+ *
+ * SSE parsing handles all three line ending styles (\r\n, \n, \r) and
+ * correctly reassembles multi-chunk SSE blocks from the stream buffer.
+ *
+ * Not currently active in VentureLog's UI but fully implemented and
+ * ready for a future voice feature in the AI Coach.
+ */
 import { useCallback, useEffect, useRef } from "react";
 import { useAudioPlayback } from "./useAudioPlayback";
 
