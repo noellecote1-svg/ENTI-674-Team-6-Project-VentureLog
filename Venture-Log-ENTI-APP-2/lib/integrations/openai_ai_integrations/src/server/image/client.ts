@@ -1,3 +1,17 @@
+/**
+ * integrations/openai_ai_integrations/client/image/client.ts — Image Generation Client
+ *
+ * Provides image generation and editing capabilities using OpenAI's
+ * gpt-image-1 model via Replit's AI Integrations proxy.
+ *
+ *   generateImageBuffer() — generates a new image from a text prompt,
+ *     returns it as a Node.js Buffer ready to save or serve
+ *   editImages() — takes existing images and a prompt, returns a
+ *     composite AI-edited image as a Buffer
+ *
+ * Not currently used in VentureLog's active features but available
+ * for future phases such as generating charts or visual assets.
+ */
 import fs from "node:fs";
 import OpenAI, { toFile } from "openai";
 import { Buffer } from "node:buffer";
