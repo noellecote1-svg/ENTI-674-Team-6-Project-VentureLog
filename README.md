@@ -22,7 +22,7 @@ While tools like Notion and Visible.vc address parts of this problem, no existin
 VentureLog solves this by giving founders one private space to:
 - **Write and reflect** through a daily journal with business-area tagging
 - **Track what matters** by logging key metrics and visualizing trends over time
-- **Document decisions** with full context — what options were considered, what was chosen, and what actually happened
+- **Document decisions** with full context including what options were considered, what was chosen, and what actually happened
 - **Get honest coaching** from an AI executive coach that reads their actual business data before every response
 - **Generate investor updates** automatically from their logged data with one click
 
@@ -30,12 +30,12 @@ VentureLog solves this by giving founders one private space to:
 
 ## Key Features
 
-- **Journal** — A private markdown journal with auto-save, tag filtering (Product, Growth, Team, Fundraising, Operations, Finance, Reflection), and localStorage draft recovery. Entries can be promoted directly to the Decision Log.
-- **Metrics Tracker** — Define and track up to 8 key business metrics with trend charts and percent-change indicators. Supports daily, weekly, and monthly tracking periods.
-- **Decision Log** — Document every significant business decision with full context: options considered, chosen option, expected outcome, actual outcome, and lessons learned. Includes threaded comments and metric linking.
-- **AI Executive Coach** — A GPT-5.2 powered coach that reads the founder's actual metrics, open decisions, and recent journal entries before every response. Conversation history persists across sessions.
-- **Investor Update Generator** — Generates a professional monthly investor update in the YC founder format, automatically pulling real metrics with month-over-month changes, key decisions, and journal highlights with one click.
-- **Dashboard** — A personalized home screen with a contextual daily prompt that surfaces stale metrics or open decisions, top metric sparklines, and recent decisions at a glance.
+- **Journal**: A private markdown journal with auto-save, tag filtering (Product, Growth, Team, Fundraising, Operations, Finance, Reflection), and localStorage draft recovery. Entries can be promoted directly to the Decision Log.
+- **Metrics Tracker**:Define and track up to 8 key business metrics with trend charts and percent-change indicators. Supports daily, weekly, and monthly tracking periods.
+- **Decision Log**: Document every significant business decision with full context: options considered, chosen option, expected outcome, actual outcome, and lessons learned. Includes threaded comments and metric linking.
+- **AI Executive Coach**: A GPT-5.2 powered coach that reads the founder's actual metrics, open decisions, and recent journal entries before every response. Conversation history persists across sessions.
+- **Investor Update Generator**: Generates a professional monthly investor update in the YC founder format, automatically pulling real metrics with month-over-month changes, key decisions, and journal highlights with one click.
+- **Dashboard**: A personalized home screen with a contextual daily prompt that surfaces stale metrics or open decisions, top metric sparklines, and recent decisions at a glance.
 
 ---
 
@@ -71,8 +71,8 @@ This project was developed using a combination of AI-assisted tools and Replit's
 - Provide the OpenAI API integration layer used by the AI Coach and Investor Update features
 
 **OpenAI GPT-5.2** powers two live features within the app:
-- The AI Executive Coach — provides context-aware business coaching based on the founder's real data
-- The Investor Update Generator — produces professional monthly investor updates from logged metrics, decisions, and journal entries
+- The AI Executive Coach provides context-aware business coaching based on the founder's real data
+- The Investor Update Generator produces professional monthly investor updates from logged metrics, decisions, and journal entries
 
 ---
 
