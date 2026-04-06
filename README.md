@@ -128,7 +128,7 @@ To run this project locally:
 ---
 
 ## Team Members
-Mankarman Ghuman
-Noelle Cote
-Alishba Kayani
-Skyler Bouwmeester
+Mankarman Ghuman  
+Noelle Cote  
+Alishba Kayani  
+Skyler Bouwmeester  
