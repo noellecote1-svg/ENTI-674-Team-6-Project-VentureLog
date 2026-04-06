@@ -1,7 +1,25 @@
 /**
- * React hook for streaming audio playback using AudioWorklet.
- * Supports real-time PCM16 audio streaming from SSE responses.
- * Includes sequence buffer for reordering out-of-order chunks.
+ * hooks/useAudioPlayback.ts — Streaming Audio Playback Hook
+ *
+ * A React hook that plays real-time PCM16 audio streamed from the server
+ * using the Web Audio API and an AudioWorklet processor.
+ *
+ * How it works:
+ *   1. Initializes an AudioContext at 24kHz (OpenAI's output sample rate)
+ *   2. Loads the audio-playback-worklet.js processor into the audio pipeline
+ *   3. As base64 PCM16 audio chunks arrive from the SSE stream, they are
+ *      decoded to Float32 and pushed into the worklet's ring buffer
+ *   4. The worklet plays audio continuously without gaps or clicks
+ *
+ * Two push modes:
+ *   pushAudio()          — simple sequential push (used by useVoiceStream)
+ *   pushSequencedAudio() — reorders chunks that arrive out of sequence
+ *                          using the SequenceBuffer class
+ *
+ * States: "idle" → "playing" → "idle" (after stream completes)
+ *
+ * Not currently active in VentureLog's UI but fully implemented and
+ * ready for a future voice feature in the AI Coach.
  */
 import { useRef, useCallback, useState } from "react";
 import { decodePCM16ToFloat32 } from "./audio-utils";
