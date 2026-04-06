@@ -1,3 +1,23 @@
+/**
+ * integrations-openai-ai-server/src/client.ts — Extended OpenAI Client
+ *
+ * An extended OpenAI integration providing image generation, image editing,
+ * and full audio capabilities (voice chat, text-to-speech, speech-to-text).
+ *
+ * Features available:
+ *   generateImageBuffer()   — generate an image from a text prompt (gpt-image-1)
+ *   editImages()            — edit existing images with a prompt (gpt-image-1)
+ *   voiceChat()             — audio-in, audio-out conversation (gpt-audio)
+ *   voiceChatStream()       — streaming voice conversation
+ *   textToSpeech()          — convert text to spoken audio
+ *   speechToText()          — transcribe audio to text (gpt-4o-mini-transcribe)
+ *   detectAudioFormat()     — detect WAV/MP3/WebM/MP4/OGG from file bytes
+ *   convertToWav()          — convert any audio format to WAV using ffmpeg
+ *
+ * These capabilities are not yet used in VentureLog's current feature set
+ * but are fully implemented and ready for future phases — for example,
+ * voice input for the AI Coach or audio investor update narration.
+ */
 import OpenAI, { toFile } from "openai";
 import { Buffer } from "node:buffer";
 import { spawn } from "child_process";
