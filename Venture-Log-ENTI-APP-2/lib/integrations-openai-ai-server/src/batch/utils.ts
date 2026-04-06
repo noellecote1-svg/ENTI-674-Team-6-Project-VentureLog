@@ -1,3 +1,24 @@
+/**
+ * integrations-openai-ai-server/src/utils.ts — Batch Processing Utilities
+ *
+ * Generic utilities for processing multiple items through the OpenAI API
+ * with built-in concurrency limiting, automatic retries, and rate limit
+ * handling. Designed to prevent overwhelming the API when processing
+ * large batches of data.
+ *
+ * Two processing modes:
+ *   batchProcess()         — parallel processing with configurable concurrency
+ *                            (default: 2 simultaneous requests)
+ *   batchProcessWithSSE()  — sequential processing that streams progress
+ *                            events to the client via Server-Sent Events
+ *
+ * Both modes use exponential backoff retry logic — if a request fails with
+ * a rate limit error (429), it waits increasingly longer before retrying
+ * (2s → 4s → 8s → ... up to 128s).
+ *
+ * Not currently used in VentureLog's core features but available for
+ * future bulk operations like processing many journal entries at once.
+ */
 import pLimit from "p-limit";
 import pRetry from "p-retry";
 
