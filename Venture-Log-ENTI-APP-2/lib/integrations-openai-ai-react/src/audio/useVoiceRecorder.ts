@@ -1,6 +1,21 @@
 /**
- * React hook for voice recording using MediaRecorder API.
- * Negotiates a supported MIME type across browsers (Chrome, Firefox, Safari).
+ * hooks/useVoiceRecorder.ts — Voice Recording Hook
+ *
+ * A React hook that manages microphone access and audio recording
+ * using the browser's MediaRecorder API.
+ *
+ * Automatically negotiates the best supported audio format across browsers:
+ *   - Chrome/Edge: prefers audio/webm;codecs=opus
+ *   - Firefox: falls back to audio/webm
+ *   - Safari/iOS: falls back to audio/mp4 or audio/aac
+ *
+ * Recording is chunked every 100ms so audio data streams in continuously
+ * rather than buffering the entire recording until stop is called.
+ *
+ * States: "idle" → "recording" → "stopped"
+ *
+ * Not currently active in VentureLog's UI but fully implemented and
+ * ready for a future voice input feature in the AI Coach.
  */
 import { useRef, useCallback, useState } from "react";
 
